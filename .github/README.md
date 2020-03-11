@@ -5,7 +5,7 @@ This repository represents a fresh ~/home/soyuka using sway (wayland powered i3)
 The base system is powered by archlinux, having a LUKS encrypted partition on /home.
 No login manager is used, sway starts when logged in on tty1.
 
-![Screenshot](.github/screen.png)
+![Screenshot](./screen.png)
 
 ## Installation
 
