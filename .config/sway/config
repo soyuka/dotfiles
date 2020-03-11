@@ -1,0 +1,167 @@
+# Soyuka's config for sway
+#
+# Read `man 5 sway` for a complete reference.
+# Tray applets are started here, see user's systemd configuration for other applications.
+
+### Variables
+#
+# Logo key. Use Mod1 for Alt.
+set $alt Mod1
+set $mod Mod4
+
+# Home row direction keys, like vim
+set $left h
+set $down j
+set $up k
+set $right l
+
+# Your preferred terminal emulator
+set $term alacritty
+
+### Output configuration
+
+# Wallpaper
+output * bg ~/.config/background.png fill
+
+# Tray applets
+exec blueman-applet
+exec wpa_gui -tq
+
+#
+# Window configuration:
+#
+font pango:Source Code Pro 10
+default_border none
+hide_edge_borders both
+gaps inner 10
+
+### Input configuration
+
+input type:touchpad {
+  tap enabled
+  natural_scroll enabled
+  dwt enabled
+  pointer_accel 0.5
+}
+
+input type:keyboard {
+  xkb_layout us
+  xkb_variant intl
+  xkb_options caps:escape
+}
+
+### Key bindings
+
+#
+# Basics:
+#
+bindsym $mod+Return exec $term -e ~/.config/sway/scripts/tmux.sh
+bindsym $mod+Shift+Return exec $term --config-file ~/.config/alacritty/alacritty.light.yml
+
+bindsym $mod+Shift+q kill
+
+bindsym $mod+Space exec wofi --show=run
+
+floating_modifier $mod normal
+
+bindsym $mod+Shift+c reload
+
+bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -b 'Yes, exit sway' 'swaymsg exit'
+
+#
+# Moving around:
+#
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+
+#
+# Workspaces:
+#
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+
+#
+# Layout stuff:
+#
+bindsym $mod+Shift+backslash splith
+bindsym $mod+Shift+minus splitv
+
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+bindsym $mod+f fullscreen
+
+bindsym $mod+Shift+space floating toggle
+bindsym $alt+space focus mode_toggle
+
+bindsym $mod+a focus parent
+
+#
+# Custom keybindings
+#
+bindsym XF86Display exec ~/.config/sway/scripts/kbdbacklight.sh
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume $(pacmd list-sinks | grep "* index" | awk '{print $3}') +3%
+bindsym XF86AudioLowerVolume exec  pactl set-sink-volume $(pacmd list-sinks | grep "* index" | awk '{print $3}') -3%
+bindsym XF86AudioMute exec pactl set-sink-mute $(pacmd list-sinks | grep "* index" | awk '{print $3}') toggle
+bindsym XF86AudioMicMute exec pactl set-source-mute $(pacmd list-sources | grep "* index" | awk '{print $3}') toggle
+bindsym $mod+Shift+x exec systemctl hibernate
+bindsym XF86Search exec grim -g "$(slurp)"
+bindsym Print exec grim
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+
+#
+# Resizing containers:
+#
+mode "resize" {
+    bindsym $left resize shrink width 10px
+    bindsym $down resize grow height 10px
+    bindsym $up resize shrink height 10px
+    bindsym $right resize grow width 10px
+
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+include /etc/sway/config.d/*

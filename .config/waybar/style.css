@@ -1,0 +1,104 @@
+/*  black #282C34 rgb(40, 44, 52); */
+/*  red #E06C75; */
+/*  green #98C379; */
+/*  yellow #E5C07B; */
+/*  blue #61AFEF; */
+/*  purple #C678DD; */
+/*  cyan #56B6C2; */
+/*  white #ABB2BF rgb(171, 178, 191) */
+
+* {
+    border: none;
+    border-radius: 0;
+    font: 13px "Source Code Pro";
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: rgb(40, 44, 52);
+    color: #ABB2BF;
+    transition-property: background-color;
+    transition-duration: .5s;
+}
+
+#workspaces button {
+    padding: 0;
+    background-color: transparent;
+    color: #ABB2BF;
+}
+
+#workspaces button:hover {
+    color: #282C34;
+    background-color: rgb(171, 178, 191);
+    box-shadow: inherit;
+}
+
+#workspaces button.focused {
+    background-color: lighter(lighter(#282C34));
+}
+
+#workspaces button.urgent {
+    color: #E06C75;
+}
+
+
+
+#mode {
+    color: #ABB2BF;
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#temperature,
+#backlight,
+#network,
+#pulseaudio,
+#custom-media,
+#tray,
+#mode,
+#idle_inhibitor,
+#mpd {
+    padding: 0 5px;
+    margin: 0 2px;
+    color: #ABB2BF;
+    background: transparent;
+}
+
+#battery.charging {
+    color: #98C379;
+}
+
+@keyframes blink {
+    to {
+        color: #ABB2BF;
+    }
+}
+
+#battery.critical:not(.charging) {
+    color: #E06C75;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+#battery.warning, #pulseaudio.muted {
+  color: #E5C07B;
+}
+
+#network.disconnected, #temperature.critical {
+    color: #E06C75;
+}
+
+/** Separator **/
+/** courtesey of https://github.com/Alexays/Waybar/issues/142#issuecomment-488391036 **/
+#waybar > box:nth-child(2) > box:nth-child(3) > *:not(:first-child) > label {
+  border-left: 1px solid #000000;
+}
+
+#waybar > box > box  label {
+  padding: 3px 5px;
+}

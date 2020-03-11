@@ -1,0 +1,108 @@
+[{
+    "layer": "top",
+    "name": "top",
+    "height": 20,
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": [],
+    "modules-right": ["network", "pulseaudio", "battery", "clock"],
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{icon}",
+        "format-icons": {
+            "1": "",
+            "2": "<span foreground=\"#E5C07B\"></span>",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "",
+            "8": "<span foreground=\"#98C379\"></span>",
+            "urgent": "",
+            "focused": "",
+            "default": ""
+        },
+				"persistent_workspaces": {
+						"1": [],
+						"2": [],
+						"7": [],
+						"8": []
+				}
+    },
+    "clock": {
+        "timezone": "Europe/Paris",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format": "{:%d/%m/%Y %H:%M}"
+    },
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{capacity}% {icon}",
+        "format-charging": "{capacity}% ",
+        "format-plugged": "{capacity}% ",
+        "format-alt": "{time} {icon}",
+        "format-icons": ["", "", "", "", ""]
+    },
+    "pulseaudio": {
+        "format": "{volume}% {icon} {format_source}",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth-muted": " {icon} {format_source}",
+        "format-muted": " {format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
+    },
+    "network": {
+        "format-wifi": "{ipaddr} {essid} ({signalStrength}%) ",
+        "format-ethernet": "{ifname}: {ipaddr}/{cidr} ",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "Disconnected ⚠",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}"
+    }
+},
+{
+    "layer": "bottom",
+    "name": "bottom",
+    "height": 20,
+    "position": "bottom",
+    "modules-left": ["tray"],
+    "modules-center": [],
+    "modules-right": ["custom/bandwidth", "disk", "memory", "cpu", "temperature"],
+    "tray": {
+        "spacing": 10
+    },
+    "cpu": {
+        "format": "{usage}% ",
+        "tooltip": false
+    },
+    "disk": {
+        "format": " {percentage_used}%  ",
+        "tooltip": false,
+        "path": "/"
+    },
+    "memory": {
+        "format": "{used:0.1f}G/{total:0.1f}G "
+    },
+    "temperature": {
+        "critical-threshold": 80,
+        "format": "{temperatureC}°C {icon}",
+        "format-icons": ["", "", ""]
+    },
+    "custom/bandwidth": {
+      "format": "{} ",
+      "interval": 1,
+      "exec": "~/.config/waybar/scripts/bandwidth -i ' ' -o ' '",
+      "exec_if": "exit 0"
+    }
+}]

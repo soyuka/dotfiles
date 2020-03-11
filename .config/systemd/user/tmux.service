@@ -1,0 +1,11 @@
+[Unit]
+Description=Tmux is a terminal multiplexer
+Documentation=man:tmux(1)
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/tmux -u -2 start-server
+
+[Install]
+WantedBy=sway-session.target
