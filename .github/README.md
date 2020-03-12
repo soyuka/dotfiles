@@ -3,7 +3,7 @@
 This repository represents a fresh ~/home/soyuka using sway (wayland powered i3), tmux and vi.
 
 The base system is powered by archlinux, having a LUKS encrypted partition on /home.
-No login manager is used, sway starts when logged in on tty1.
+No login manager is used, sway starts when logged in on tty1. Colors are based on [OneDark](https://github.com/joshdick/onedark.vim).
 
 ![Screenshot](./screen.png)
 
