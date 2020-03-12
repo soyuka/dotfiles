@@ -101,7 +101,7 @@
     },
     "custom/bandwidth": {
       "format": "{} ",
-      "interval": 1,
+      "interval": 3,
       "exec": "~/.config/waybar/scripts/bandwidth -i ' ' -o ' '",
       "exec_if": "exit 0"
     }

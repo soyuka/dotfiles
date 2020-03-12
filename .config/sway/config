@@ -25,7 +25,7 @@ output * bg ~/.config/background.png fill
 
 # Tray applets
 exec blueman-applet
-exec wpa_gui -tq
+exec wpa_gui -t
 
 #
 # Window configuration:

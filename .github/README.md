@@ -20,6 +20,9 @@ Install manually these plugin manager:
  - [vim (plug)](https://github.com/junegunn/vim-plug) then `vim +PlugInstall`
  - [tmux (tpm)](https://github.com/tmux-plugins/tpm) then `C-a + I`
 
+Follow [hibernation](https://wiki.archlinux.org/index.php/Power_management/Suspend_and_hibernate#Hibernation) instructions.
+soyuka should belong to the following groups: `sudo`, `video` (see [brightnessctl](https://github.com/Hummer12007/brightnessctl/issues)).
+
 ## Packages list
 
 I use [aurman](https://github.com/polygamma/aurman) to install aur packages.
