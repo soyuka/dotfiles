@@ -23,10 +23,6 @@ set $term alacritty
 # Wallpaper
 output * bg ~/.config/background.png fill
 
-# Tray applets
-exec blueman-applet
-exec wpa_gui -t
-
 #
 # Window configuration:
 #
@@ -166,3 +162,8 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 include /etc/sway/config.d/*
+
+exec waybar
+exec udiskie --appindicator -t
+exec blueman-applet
+exec systemctl --user start wpa_gui

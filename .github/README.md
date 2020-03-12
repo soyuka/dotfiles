@@ -23,6 +23,24 @@ Install manually these plugin manager:
 Follow [hibernation](https://wiki.archlinux.org/index.php/Power_management/Suspend_and_hibernate#Hibernation) instructions.
 soyuka should belong to the following groups: `sudo`, `video` (see [brightnessctl](https://github.com/Hummer12007/brightnessctl/issues)).
 
+To lock on suspend/hibernate add the following in `/etc/systemd/system/swaylock.service`:
+
+```
+[Unit]
+Description=Lock sway using swaylock
+
+[Service]
+Type=forking
+User=soyuka
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+ExecStart=/usr/bin/swaylock -f
+
+[Install]
+WantedBy=sleep.target
+WantedBy=suspend.target
+```
+
 ## Packages list
 
 I use [aurman](https://github.com/polygamma/aurman) to install aur packages.

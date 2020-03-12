@@ -1,0 +1,7 @@
+[Unit]
+Description=Wpa supplicant gui
+Documentation=https://github.com/stevenhoneyman/wpa_gui
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/wpa_gui -q -t

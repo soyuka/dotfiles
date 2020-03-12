@@ -4,7 +4,7 @@
     "height": 20,
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["network", "pulseaudio", "battery", "clock"],
+    "modules-right": ["network", "pulseaudio", "battery", "clock", "tray"],
     "sway/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
@@ -69,6 +69,9 @@
         "format-linked": "{ifname} (No IP) ",
         "format-disconnected": "Disconnected ⚠",
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
+    },
+    "tray": {
+        "spacing": 10
     }
 },
 {
@@ -76,12 +79,9 @@
     "name": "bottom",
     "height": 20,
     "position": "bottom",
-    "modules-left": ["tray"],
+    "modules-left": [],
     "modules-center": [],
     "modules-right": ["custom/bandwidth", "disk", "memory", "cpu", "temperature"],
-    "tray": {
-        "spacing": 10
-    },
     "cpu": {
         "format": "{usage}% ",
         "tooltip": false

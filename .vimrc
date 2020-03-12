@@ -171,10 +171,12 @@ nnoremap <Leader>p :set paste!<CR>
 " Replaces tabs with spaces
 nnoremap <Leader>t :0,$s/\t/  /g<CR>
 
-vnoremap <Leader>y "+y
-vnoremap <Leader>Y "+Y
-nnoremap <Leader>y "+y
-nnoremap <Leader>Y "+Y
+" vnoremap <Leader>y "+y
+" vnoremap <Leader>Y "+Y
+" nnoremap <Leader>y "+y
+" nnoremap <Leader>Y "+Y
+
+vnoremap <Leader>y y:call system("wl-copy", @")<cr>
 
 nnoremap <S-L> :MBEbn<CR>
 nnoremap <S-H> :MBEbp<CR>
