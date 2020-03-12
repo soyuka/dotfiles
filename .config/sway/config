@@ -135,6 +135,7 @@ bindsym XF86Display exec ~/.config/sway/scripts/kbdbacklight.sh
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume $(pacmd list-sinks | grep "* index" | awk '{print $3}') +3%
 bindsym XF86AudioLowerVolume exec  pactl set-sink-volume $(pacmd list-sinks | grep "* index" | awk '{print $3}') -3%
 bindsym XF86AudioMute exec pactl set-sink-mute $(pacmd list-sinks | grep "* index" | awk '{print $3}') toggle
+bindsym Shift+XF86AudioMute exec pactl set-source-mute $(pacmd list-sources | grep "* index" | awk '{print $3}') toggle
 bindsym XF86AudioMicMute exec pactl set-source-mute $(pacmd list-sources | grep "* index" | awk '{print $3}') toggle
 bindsym $mod+Shift+x exec systemctl hibernate
 bindsym XF86Search exec grim -g "$(slurp)"
