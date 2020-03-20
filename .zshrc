@@ -3,6 +3,7 @@ HISTSIZE=100000
 SAVEHIST=100000
 ZSH_CONFIG="${HOME}/.config/zsh"
 ANTIGEN_DIR="$ZSH_CONFIG/antigen"
+fpath+=~/.zfunc
 
 bindkey -e # emacs key bindings
 source "$ZSH_CONFIG/aliases.zsh"

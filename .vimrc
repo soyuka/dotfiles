@@ -1,3 +1,4 @@
+let $PATH .= ':/home/soyuka/.nvm/versions/node/v12.16.1/bin'
 filetype off
 call plug#begin()
 Plug 'christoomey/vim-tmux-navigator'
@@ -34,6 +35,7 @@ Plug 'tomtom/tcomment_vim'
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
+Plug 'ryanolsonx/vim-lsp-typescript'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
@@ -55,6 +57,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+Plug 'felixfbecker/php-language-server', {'do': 'composer install && composer run-script parse-stubs'}
 call plug#end()
 
 " My config
@@ -131,7 +134,7 @@ set ignorecase
 set incsearch
 set smartcase
 set spelllang=en
-set nospell
+" set nospell
 set spellsuggest=5
 set showmode
 set laststatus=2
@@ -302,3 +305,11 @@ cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 " Command that searches the word under the cursor
 " vnoremap <C-n>  y:%s/<C-R>=escape(@",'/\')<CR>/
 " vim:ft=vim:tabstop=2:shiftwidth=2:softtabstop=2:smarttab:shiftround:expandtab
+
+let g:lsp_log_verbose = 1
+let g:lsp_log_file = expand('~/vim-lsp.log')
+au User lsp_setup call lsp#register_server({
+     \ 'name': 'php-language-server',
+     \ 'cmd': {server_info->['php', expand('~/.vim/plugged/php-language-server/bin/php-language-server.php')]},
+     \ 'whitelist': ['php'],
+     \ })

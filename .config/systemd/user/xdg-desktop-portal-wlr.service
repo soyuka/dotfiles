@@ -1,0 +1,11 @@
+[Unit]
+Description=xdg-desktop-portal backend for wlroots
+Documentation=https://github.com/emersion/xdg-desktop-portal-wlr
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/xdg-desktop-portal-wlr
+
+[Install]
+WantedBy=sway-session.target

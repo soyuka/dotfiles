@@ -49,6 +49,7 @@ I use [aurman](https://github.com/polygamma/aurman) to install aur packages.
 adobe-source-code-pro-fonts
 alacritty
 alsa-utils
+bat
 base-devel
 blueman
 bluez
@@ -89,10 +90,17 @@ wl-clipboard-x11 wl-clipboard
 # rofi replacement
 wofi
 xdg-utils
+# Share screen on wayland (experimental)
+xdg-desktop-portal-wlr
 # Note do not install https://wiki.archlinux.org/index.php/Dell_XPS_13_(7390) https://old.reddit.com/r/archlinux/comments/e30f09/complications_when_setting_up_arch_on_the_new/
 # xf86-video-intel
 xorg
 xorg-xinit
 zathura
 zsh
+bat
+# Portal (screen share) for wlroots
+xdg-desktop-portal-wlr-git xdg-desktop-portal-git
+# If needed for xterm/rxvt-unicode
+ttf-font-awesome ttf-font-symbola-frr
 ```

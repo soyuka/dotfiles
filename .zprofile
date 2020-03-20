@@ -8,6 +8,9 @@ export NVM_LAZY_LOAD=true
 export PATH="$HOME/.symfony/bin:$PATH"
 export GRIM_DEFAULT_DIR=~/Pictures/Screenshots
 export MOZ_ENABLE_WAYLAND=1
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export XDG_CURRENT_DESKTOP=sway
+export XDG_SESSION_TYPE=wayland
 
 # startx on the 1st vt
 if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
