@@ -58,6 +58,8 @@ Plug 'tpope/vim-fugitive'
 
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'felixfbecker/php-language-server', {'do': 'composer install && composer run-script parse-stubs'}
+
+" Plug 'fatih/vim-go'
 call plug#end()
 
 " My config
@@ -174,12 +176,7 @@ nnoremap <Leader>p :set paste!<CR>
 " Replaces tabs with spaces
 nnoremap <Leader>t :0,$s/\t/  /g<CR>
 
-" vnoremap <Leader>y "+y
-" vnoremap <Leader>Y "+Y
-" nnoremap <Leader>y "+y
-" nnoremap <Leader>Y "+Y
-
-vnoremap <Leader>y y:call system("wl-copy", @")<cr>
+xmap <Leader>y y:call system("wl-copy", @")<CR>
 
 nnoremap <S-L> :MBEbn<CR>
 nnoremap <S-H> :MBEbp<CR>
@@ -218,7 +215,7 @@ autocmd BufRead,BufNewFile *.feature set ts=2 sw=2
 autocmd BufRead,BufNewFile *.rs set ts=4 sw=4
 
 " auto remove/hi trailing space
-autocmd BufWritePre * :%s/\s\+$//e
+" autocmd BufWritePre * :%s/\s\+$//e
 
 " Echo doc
 let g:echodoc#enable_at_startup = 1
@@ -308,8 +305,8 @@ cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 
 let g:lsp_log_verbose = 1
 let g:lsp_log_file = expand('~/vim-lsp.log')
-au User lsp_setup call lsp#register_server({
-     \ 'name': 'php-language-server',
-     \ 'cmd': {server_info->['php', expand('~/.vim/plugged/php-language-server/bin/php-language-server.php')]},
-     \ 'whitelist': ['php'],
-     \ })
+" au User lsp_setup call lsp#register_server({
+"      \ 'name': 'php-language-server',
+"      \ 'cmd': {server_info->['php', expand('~/.vim/plugged/php-language-server/bin/php-language-server.php')]},
+"      \ 'whitelist': ['php'],
+"      \ })

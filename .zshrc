@@ -3,11 +3,13 @@ HISTSIZE=100000
 SAVEHIST=100000
 ZSH_CONFIG="${HOME}/.config/zsh"
 ANTIGEN_DIR="$ZSH_CONFIG/antigen"
+
 fpath+=~/.zfunc
 
 bindkey -e # emacs key bindings
 source "$ZSH_CONFIG/aliases.zsh"
 source "$ZSH_CONFIG/antigen.zsh"
+[ -s "$NVM_DIR/nvm.sh"  ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
 antigen use oh-my-zsh
 antigen bundle git
@@ -17,7 +19,6 @@ antigen bundle npm
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-completions
 antigen bundle rupa/z
-antigen bundle lukechilds/zsh-nvm
 antigen theme $ZSH_CONFIG soyuka
 antigen apply
 
