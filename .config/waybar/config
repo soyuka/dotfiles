@@ -81,7 +81,7 @@
     "position": "bottom",
     "modules-left": [],
     "modules-center": [],
-    "modules-right": ["custom/bandwidth", "disk", "memory", "cpu", "temperature"],
+    "modules-right": ["custom/backup", "custom/bandwidth", "disk", "memory", "cpu", "temperature"],
     "cpu": {
         "format": "{usage}% ",
         "tooltip": false
@@ -102,7 +102,11 @@
     "custom/bandwidth": {
       "format": "{} ",
       "interval": 3,
-      "exec": "~/.config/waybar/scripts/bandwidth -i ' ' -o ' '",
-      "exec_if": "exit 0"
+      "exec": "~/.config/waybar/scripts/bandwidth -i ' ' -o ' '"
+    },
+    "custom/backup": {
+      "format": "{} ⏲️",
+      "interval": 3600,
+      "exec": "~/.config/waybar/scripts/backup"
     }
 }]
