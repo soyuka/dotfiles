@@ -1,0 +1,2 @@
+*.lock	-diff
+*.php diff=php

@@ -163,6 +163,7 @@ bindsym $mod+r mode "resize"
 
 include /etc/sway/config.d/*
 
+exec systemctl --user import-environment
 exec waybar
 exec udiskie --appindicator -t
 exec blueman-applet

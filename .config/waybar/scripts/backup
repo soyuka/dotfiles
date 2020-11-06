@@ -1,2 +1,2 @@
 #!/bin/bash
-journalctl --user -u borgmatic.service --no-pager | grep -i 'Finished borgmatic backup.' | awk '{print $1 " " $2 " " $3}'
+journalctl --user -u borgmatic.service --no-pager | grep -i 'Finished borgmatic backup.' | awk '{print $1 " " $2 " " $3}' | tail -n 1

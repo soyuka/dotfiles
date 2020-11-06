@@ -1,7 +1,7 @@
 export EDITOR='vim'
 export ANDROID_HOME="${HOME}/Android/Sdk"
 # rust, andoid, composer global and local, then local node
-export PATH="$PATH:$HOME/.cargo/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$HOME/.composer/vendor/bin:vendor/bin:node_modules/.bin:$HOME/.local/bin:$HOME/.yarn/bin:$HOME/go/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
+export PATH="$PATH:$HOME/.cargo/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$HOME/.composer/vendor/bin:vendor/bin:node_modules/.bin:$HOME/.local/bin:$HOME/.yarn/bin:$HOME/go/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:/usr/lib/emsdk/upstream/emscripten"
 # nvm, node
 export NVM_DIR="${HOME}/.nvm"
 export NVM_LAZY_LOAD=true

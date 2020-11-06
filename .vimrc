@@ -9,8 +9,9 @@ Plug 'scrooloose/nerdtree'
 " Lightline FTW
 Plug 'itchyny/lightline.vim'
 " Plug 'maximbaz/lightline-ale'
-" buffer manager <3
-Plug 'fholgado/minibufexpl.vim'
+" buffer manager <3, replaced by buftabline 05/11/2020 oO
+" Plug 'fholgado/minibufexpl.vim'
+Plug 'ap/vim-buftabline' 
 " Replaces :MBEbd from minibufexpl cause it is bugged
 Plug 'qpkorr/vim-bufkill'
 
@@ -178,8 +179,8 @@ nnoremap <Leader>t :0,$s/\t/  /g<CR>
 
 xmap <Leader>y y:call system("wl-copy", @")<CR>
 
-nnoremap <S-L> :MBEbn<CR>
-nnoremap <S-H> :MBEbp<CR>
+nnoremap <S-L> :bnext<CR>
+nnoremap <S-H> :bprev<CR>
 
 " Delete buffer but leave window open
 nnoremap <Leader>q :BD<CR>
@@ -237,8 +238,8 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTree
 map <Leader>n :NERDTreeToggle<CR>
 
 " MinBufExpl options
-let g:miniBufExplBRSplit=0
-let g:miniBufExplCycleArround=1
+" let g:miniBufExplBRSplit=0
+" let g:miniBufExplCycleArround=1
 
 " Comment block
 vmap gb :TCommentBlock<CR>
@@ -263,6 +264,7 @@ let g:lightline = {
 \ }
 
 nnoremap <C-p> :FZF<CR>
+nnoremap <C-b> :Buffers<CR>
 
 " LSP (language server) Plugin
 let g:lsp_diagnostics_enabled = 0
@@ -288,6 +290,7 @@ inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <cr> pumvisible() ? "\<C-y>\<cr>" : "\<cr>"
 
+# todo: from @greg0ire vnoremap <leader>l :<c-u>exe '!git log -L' line("'<").','.line("'>").':'.expand('%')<CR>"'")"'")
 source ~/.vim/no_distraction_mode
 nnoremap <F12> :call ToggleNoDistractionMode()<CR>
 
