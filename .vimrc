@@ -60,6 +60,8 @@ Plug 'tpope/vim-fugitive'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'felixfbecker/php-language-server', {'do': 'composer install && composer run-script parse-stubs'}
 
+Plug 'dpelle/vim-Grammalecte'
+
 " Plug 'fatih/vim-go'
 call plug#end()
 
@@ -95,10 +97,11 @@ if has("termguicolors")
 endif
 
 set background=dark
-" set background=light
+"set background=light
 
 let g:onedark_terminal_italics = 1
 colorscheme onedark
+"colorscheme base16-google-light
 syntax on
 
 " Settings
@@ -290,7 +293,7 @@ inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <cr> pumvisible() ? "\<C-y>\<cr>" : "\<cr>"
 
-# todo: from @greg0ire vnoremap <leader>l :<c-u>exe '!git log -L' line("'<").','.line("'>").':'.expand('%')<CR>"'")"'")
+" todo: from @greg0ire vnoremap <leader>l :<c-u>exe '!git log -L' line("'<").','.line("'>").':'.expand('%')<CR>"'")"'")
 source ~/.vim/no_distraction_mode
 nnoremap <F12> :call ToggleNoDistractionMode()<CR>
 
