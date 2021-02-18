@@ -3,3 +3,5 @@
 	name = soyuka
 [core]
 	excludesfile = /home/soyuka/.gitignore-global
+[init]
+	defaultBranch = main
