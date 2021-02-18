@@ -12,8 +12,12 @@ export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_TYPE=wayland
 
+# Force Mesa3d anisotropy filter
+# export RADV_TEX_ANISO=16
+
 # startx on the 1st vt
 if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
   # exec startx
   exec sway
 fi
+
