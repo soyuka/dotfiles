@@ -133,6 +133,11 @@ bindsym XF86AudioLowerVolume exec  pactl set-sink-volume $(pacmd list-sinks | gr
 bindsym XF86AudioMute exec pactl set-sink-mute $(pacmd list-sinks | grep "* index" | awk '{print $3}') toggle
 bindsym Shift+XF86AudioMute exec pactl set-source-mute $(pacmd list-sources | grep "* index" | awk '{print $3}') toggle
 bindsym XF86AudioMicMute exec pactl set-source-mute $(pacmd list-sources | grep "* index" | awk '{print $3}') toggle
+# +bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +3%
+# +bindsym XF86AudioLowerVolume exec  pactl set-sink-volume @DEFAULT_SINK@ -3%
+# +bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+# +bindsym Shift+XF86AudioMute exec pactl set-source-mute @DEFAULT_SINK@ toggle
+# +bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SINK@ toggle
 bindsym $mod+Shift+x exec systemctl hibernate
 bindsym XF86Search exec grim -g "$(slurp)"
 bindsym Print exec grim
@@ -164,6 +169,7 @@ bindsym $mod+r mode "resize"
 include /etc/sway/config.d/*
 
 exec systemctl --user import-environment
+exec dbus-update-activation-environment --all
 exec waybar
 exec udiskie --appindicator -t
 exec blueman-applet
