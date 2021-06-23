@@ -12,6 +12,7 @@
 !.config/waybar
 !.config/wofi
 !.config/zsh
+!.config/zathura/zathurarc
 .config/zsh/antigen.zsh
 .config/zsh/soyuka.zsh-theme.antigen-compat
 !.gitconfig

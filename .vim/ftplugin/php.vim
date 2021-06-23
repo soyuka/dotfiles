@@ -4,7 +4,9 @@ setlocal expandtab
 setlocal autoindent
 setlocal smarttab
 
-nmap <Leader>u :call phpactor#UseAdd()<CR>
+autocmd FileType php set iskeyword+=$
+nmap <Leader>u :PhpactorImportClass<CR>
+nmap <Leader>e :PhpactorClassExpand<CR>
 let g:php_namespace_sort_after_insert = 1
 
 " For php get/set

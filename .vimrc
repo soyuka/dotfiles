@@ -36,9 +36,10 @@ Plug 'tomtom/tcomment_vim'
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
-Plug 'ryanolsonx/vim-lsp-typescript'
+Plug 'ak5/vim-lsp-typescript'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
+" Plug 'felixfbecker/php-language-server', {'do': 'composer install && composer run-script parse-stubs'}
 
 " Typescript plugin for auto imports
 Plug 'Quramy/tsuquyomi'
@@ -58,7 +59,6 @@ Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
-Plug 'felixfbecker/php-language-server', {'do': 'composer install && composer run-script parse-stubs'}
 
 Plug 'dpelle/vim-Grammalecte'
 
@@ -155,7 +155,9 @@ set cul " highlight current line
 set nolist
 " set listchars=trail:·,eol:¬,tab:┊\
 
-set noautochdir "cd to file cwd
+set noautochdir 
+" basically :lcd %:p:h in every buffer (https://vim.fandom.com/wiki/Set_working_directory_to_the_current_file)
+" autocmd BufEnter * silent! lcd %:p:h
 
 " wrap to previous line when cursor reach eol/beginning
 set whichwrap+=<,>,h,l,[,]

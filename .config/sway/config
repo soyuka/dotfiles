@@ -42,7 +42,7 @@ input type:touchpad {
 
 input type:keyboard {
   xkb_layout us
-  xkb_variant intl
+  xkb_variant intl-unicode
   xkb_options caps:escape
 }
 

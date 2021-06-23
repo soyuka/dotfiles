@@ -1,4 +1,4 @@
-# Configuration for Alacritty, the GPU enhanced terminal emulator
+# Configuration for Alacritty, the GPU enhanced terminal emulato0
 
 
 # Any items in the `env` entry below will be added as
@@ -22,6 +22,8 @@ window:
   dimensions:
     columns: 80
     lines: 24
+
+  dynamic_title: true
 
   # Adds this many blank pixels of padding around the window
   # Units are physical pixels; this is not DPI aware.
@@ -76,7 +78,7 @@ font:
     style: Italic
 
   # Point size of the font
-  size: 13.0
+  size: 12.0
 
   # Offset is the extra space around each character. offset.y can be thought of
   # as modifying the linespacing, and offset.x as modifying the letter spacing.
@@ -97,43 +99,39 @@ font:
   use_thin_strokes: true
 
 # https://github.com/sainnhe/edge/blob/master/alacritty/README.md
+# Colors (One Dark)
 colors:
+  # Default colors
   primary:
-    background: "0xfafafa"
-    foreground: "0x4b505b"
+    foreground: '0xabb2bf'
+    background: '0x282c34'
 
-  normal:
-    black: "0x4b505b"
-    red: "0xd15f5f"
-    green: "0x608e32"
-    yellow: "0xbe7e05"
-    blue: "0x5079be"
-    magenta: "0xb05ccc"
-    cyan: "0x3a8b84"
-    white: "0x949ba5"
-
-  bright:
-    black: "0x4b505b"
-    red: "0xd15f5f"
-    green: "0x608e32"
-    yellow: "0xbe7e05"
-    blue: "0x5079be"
-    magenta: "0xb05ccc"
-    cyan: "0x3a8b84"
-    white: "0x949ba5"
-
-  # Colors the cursor will use if `custom_cursor_colors` is true
+  # Cursor colors
   cursor:
-    text: '0xffffff'
-    cursor: '0x373b41'
+    text: '0x5c6370'
+    cursor: '0xabb2bf'
 
-  indexed_colors:
-    - { index: 16, color: '0xf96a38' }
-    - { index: 17, color: '0x3971ed' }
-    - { index: 18, color: '0xe0e0e0' }
-    - { index: 19, color: '0xc5c8c6' }
-    - { index: 20, color: '0x969896' }
-    - { index: 21, color: '0x282a2e' }
+  # Normal colors
+  normal:
+    black:   '0x5c6370'
+    red:     '0xe06c75'
+    green:   '0x98c379'
+    yellow:  '0xe5c07b'
+    blue:    '0x61afef'
+    magenta: '0xc678dd'
+    cyan:    '0x56b6c2'
+    white:   '0xabb2bf'
+
+  # Bright colors
+  bright:
+    black:   '0x4b5263'
+    red:     '0xbe5046'
+    green:   '0x98c379'
+    yellow:  '0xd19a66'
+    blue:    '0x61afef'
+    magenta: '0xc678dd'
+    cyan:    '0x56b6c2'
+    white:   '0x3e4452'
 
 # Visual Bell
 #
@@ -157,7 +155,7 @@ colors:
 #
 # To completely disable the visual bell, set its duration to 0.
 #
-visual_bell:
+bell:
   animation: EaseOutExpo
   duration: 0
 
@@ -203,8 +201,6 @@ mouse:
 
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
-
-dynamic_title: true
 
 mouse.hide_when_typing: true
 
@@ -278,7 +274,7 @@ key_bindings:
   - { key: Insert,   mods: Shift,   action: PasteSelection               }
   - { key: Key0,     mods: Control, action: ResetFontSize                }
   - { key: Equals,   mods: Control, action: IncreaseFontSize             }
-  - { key: Subtract, mods: Control, action: DecreaseFontSize             }
+  - { key: Minus,    mods: Control, action: DecreaseFontSize             }
   - { key: Home,                    chars: "\x1bOH",   mode: AppCursor   }
   - { key: Home,                    chars: "\x1b[H",   mode: ~AppCursor  }
   - { key: End,                     chars: "\x1bOF",   mode: AppCursor   }

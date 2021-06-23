@@ -81,15 +81,18 @@
     "position": "bottom",
     "modules-left": [],
     "modules-center": [],
-    "modules-right": ["custom/backup", "custom/bandwidth", "disk", "memory", "cpu", "temperature"],
+    "modules-right": ["custom/backup", "custom/bandwidth", "disk#root",  "disk#home","memory", "cpu", "temperature"],
     "cpu": {
         "format": "{usage}% ",
         "tooltip": false
     },
-    "disk": {
-        "format": " {percentage_used}%  ",
-        "tooltip": false,
+    "disk#root": {
+        "format": "{percentage_used}% /",
         "path": "/"
+    },
+    "disk#home": {
+        "format": "{percentage_used}% /home",
+        "path": "/home"
     },
     "memory": {
         "format": "{used:0.1f}G/{total:0.1f}G "
