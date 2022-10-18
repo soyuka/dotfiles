@@ -3,6 +3,7 @@ HISTSIZE=100000
 SAVEHIST=100000
 ZSH_CONFIG="${HOME}/.config/zsh"
 ANTIGEN_DIR="$ZSH_CONFIG/antigen"
+DISABLE_AUTO_TITLE=true
 
 fpath+=~/.zfunc
 
@@ -23,7 +24,7 @@ antigen theme $ZSH_CONFIG soyuka
 antigen apply
 
 zstyle :compinstall filename '/home/soyuka/.zshrc'
-plugins=(zsh-completions)
+plugins=(zsh-completions colored-man-pages)
 autoload -U compinit
 compinit
 
