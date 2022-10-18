@@ -165,7 +165,7 @@ location:
 # https://borgbackup.readthedocs.io/en/stable/usage/create.html and
 # https://borgbackup.readthedocs.io/en/stable/usage/general.html for
 # details.
-storage:
+# storage:
     # The standard output of this command is used to unlock the
     # encryption key. Only use on repositories that were
     # initialized with passcommand/repokey encryption. Note that
@@ -206,7 +206,7 @@ storage:
 
     # Command to use instead of "ssh". This can be used to specify
     # ssh options.  Defaults to not set.
-    ssh_command: ssh -i /home/soyuka/.ssh/id_rsa_borgbackup
+    # ssh_command: ssh
 
     # Base path used for various Borg directories. Defaults to
     # $HOME, ~$USER, or ~.
