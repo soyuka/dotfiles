@@ -124,6 +124,8 @@ bindsym $alt+space focus mode_toggle
 
 bindsym $mod+a focus parent
 
+bindsym $mod+c exec ~/.config/sway/scripts/switch_dark_mode.sh
+
 #
 # Custom keybindings
 #
@@ -138,9 +140,10 @@ bindsym XF86AudioMicMute exec pactl set-source-mute $(pacmd list-sources | grep 
 # +bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
 # +bindsym Shift+XF86AudioMute exec pactl set-source-mute @DEFAULT_SINK@ toggle
 # +bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SINK@ toggle
-bindsym $mod+Shift+x exec systemctl hibernate
+# bindsym $mod+Shift+x exec systemctl hibernate
+bindsym $mod+Shift+x exec swaylock
 bindsym XF86Search exec grim -g "$(slurp)"
-bindsym Print exec grim
+bindsym Print exec grim -o $(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name')
 bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
