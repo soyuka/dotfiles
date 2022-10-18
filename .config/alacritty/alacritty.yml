@@ -1,5 +1,7 @@
 # Configuration for Alacritty, the GPU enhanced terminal emulato0
 
+import:
+  - ~/.config/alacritty/color.white.yml
 
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
@@ -24,6 +26,8 @@ window:
     lines: 24
 
   dynamic_title: true
+
+  opacity: 1.0
 
   # Adds this many blank pixels of padding around the window
   # Units are physical pixels; this is not DPI aware.
@@ -98,41 +102,6 @@ font:
   # false.
   use_thin_strokes: true
 
-# https://github.com/sainnhe/edge/blob/master/alacritty/README.md
-# Colors (One Dark)
-colors:
-  # Default colors
-  primary:
-    foreground: '0xabb2bf'
-    background: '0x282c34'
-
-  # Cursor colors
-  cursor:
-    text: '0x5c6370'
-    cursor: '0xabb2bf'
-
-  # Normal colors
-  normal:
-    black:   '0x5c6370'
-    red:     '0xe06c75'
-    green:   '0x98c379'
-    yellow:  '0xe5c07b'
-    blue:    '0x61afef'
-    magenta: '0xc678dd'
-    cyan:    '0x56b6c2'
-    white:   '0xabb2bf'
-
-  # Bright colors
-  bright:
-    black:   '0x4b5263'
-    red:     '0xbe5046'
-    green:   '0x98c379'
-    yellow:  '0xd19a66'
-    blue:    '0x61afef'
-    magenta: '0xc678dd'
-    cyan:    '0x56b6c2'
-    white:   '0x3e4452'
-
 # Visual Bell
 #
 # Any time the BEL code is received, Alacritty "rings" the visual bell. Once
@@ -158,9 +127,6 @@ colors:
 bell:
   animation: EaseOutExpo
   duration: 0
-
-# Background opacity
-background_opacity: 1.0
 
 # Mouse bindings
 #
@@ -370,3 +336,5 @@ key_bindings:
   - { key: F10,      mods: Super,   chars: "\x1b[21;3~"                  }
   - { key: F11,      mods: Super,   chars: "\x1b[23;3~"                  }
   - { key: F12,      mods: Super,   chars: "\x1b[24;3~"                  }
+
+# vim:ts=2:sw=2
