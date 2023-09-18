@@ -1,165 +1,167 @@
 # Where to look for files to backup, and where to store those backups.  # See https://borgbackup.readthedocs.io/en/stable/quickstart.html and
 # https://borgbackup.readthedocs.io/en/stable/usage/create.html
 # for details.
-location:
-    # List of source directories to backup (required). Globs and
-    # tildes are expanded.
-    source_directories:
-        - /home/soyuka
+# List of source directories to backup (required). Globs and
+# tildes are expanded.
+source_directories:
+    - /home/soyuka
 
-    # Paths to local or remote repositories (required). Tildes are
-    # expanded. Multiple repositories are backed up to in
-    # sequence. See ssh_command for SSH options like identity file
-    # or port.
-    repositories:
-        - redacted
+# Paths to local or remote repositories (required). Tildes are
+# expanded. Multiple repositories are backed up to in
+# sequence. See ssh_command for SSH options like identity file
+# or port.
+repositories:
+    # - ssh://soyuka@babylon.thcol.in/volume2/borgbackup/syk-xp5
+    - ssh://vg9zxk3p@vg9zxk3p.repo.borgbase.com/./repo
 
-    # Stay in same file system (do not cross mount points).
-    # Defaults to false. But when a database hook is used, the
-    # setting here is ignored and one_file_system is considered
-    # true.
-    # one_file_system: true
+# Stay in same file system (do not cross mount points).
+# Defaults to false. But when a database hook is used, the
+# setting here is ignored and one_file_system is considered
+# true.
+# one_file_system: true
 
-    # Only store/extract numeric user and group identifiers.
-    # Defaults to false.
-    # numeric_owner: true
+# Only store/extract numeric user and group identifiers.
+# Defaults to false.
+# numeric_owner: true
 
-    # Store atime into archive. Defaults to true.
-    # atime: false
+# Store atime into archive. Defaults to true.
+# atime: false
 
-    # Store ctime into archive. Defaults to true.
-    # ctime: false
+# Store ctime into archive. Defaults to true.
+# ctime: false
 
-    # Store birthtime (creation date) into archive. Defaults to
-    # true.
-    # birthtime: false
+# Store birthtime (creation date) into archive. Defaults to
+# true.
+# birthtime: false
 
-    # Use Borg's --read-special flag to allow backup of block and
-    # other special devices. Use with caution, as it will lead to
-    # problems if used when backing up special devices such as
-    # /dev/zero. Defaults to false. But when a database hook is
-    # used, the setting here is ignored and read_special is
-    # considered true.
-    # read_special: false
+# Use Borg's --read-special flag to allow backup of block and
+# other special devices. Use with caution, as it will lead to
+# problems if used when backing up special devices such as
+# /dev/zero. Defaults to false. But when a database hook is
+# used, the setting here is ignored and read_special is
+# considered true.
+# read_special: false
 
-    # Record bsdflags (e.g. NODUMP, IMMUTABLE) in archive.
-    # Defaults to true.
-    # bsd_flags: true
+# Record bsdflags (e.g. NODUMP, IMMUTABLE) in archive.
+# Defaults to true.
+# bsd_flags: true
 
-    # Mode in which to operate the files cache. See
-    # http://borgbackup.readthedocs.io/en/stable/usage/create.html
-    # for details. Defaults to "ctime,size,inode".
-    # files_cache: ctime,size,inode
+# Mode in which to operate the files cache. See
+# http://borgbackup.readthedocs.io/en/stable/usage/create.html
+# for details. Defaults to "ctime,size,inode".
+# files_cache: ctime,size,inode
 
-    # Alternate Borg local executable. Defaults to "borg".
-    # local_path: borg1
+# Alternate Borg local executable. Defaults to "borg".
+# local_path: borg1
 
-    # Alternate Borg remote executable. Defaults to "borg".
-    remote_path: /usr/local/bin/borg
+# Alternate Borg remote executable. Defaults to "borg".
+remote_path: /usr/local/bin/borg
 
-    # Any paths matching these patterns are included/excluded from
-    # backups. Globs are expanded. (Tildes are not.) Note that
-    # Borg considers this option experimental. See the output of
-    # "borg help patterns" for more details. Quote any value if it
-    # contains leading punctuation, so it parses correctly.
-    patterns:
-      # .config/Slack/Cache
-        - '- /home/*/Downloads'
-        # - R /
-        - '- /home/*/.cache'
-        - '- /home/*/.cargo'
-        - '- /home/*/.circleci'
-        - '- /home/*/.cmake'
-        - '- /home/*/.*-gyp'
-        - '- /home/*/.fzf*'
-        - '- /home/*/.hyperdrive'
-        - '- /home/*/.ipfs*'
-        - '- /home/*/.kube'
-        - '- /home/*/.local'
-        - '- /home/*/.minikube'
-        - '- /home/*/.mozilla'
-        - '- /home/*/.npm'
-        - '- /home/*/.nvm'
-        - '- /home/*/.phpls'
-        - '- /home/*/.pipewire-media-session'
-        - '- /home/*/.pki'
-        - '- /home/*/.PlayOnLinux'
-        - '- /home/*/.pm2'
-        - '- /home/*/.rustup'
-        - '- /home/*/.standard-c14-cache'
-        - '- /home/*/.steam*'
-        - '- /home/*/.step'
-        - '- /home/*/.symfony'
-        - '- /home/*/.tor-browser'
-        - '- /home/*/.vmware'
-        - '- /home/*/.vscode-oss'
-        - '- /home/*/.wine'
-        - '- /home/*/.yarn'
-        - '- /home/*/.config/chromium'
-        - '- /home/*/.config/Slack'
-        - '- /home/*/.config/WebTorrent'
-        - '- /home/*/.config/Cypress'
-        - '- /home/*/.config/Beaker Browser'
-        - '- /home/*/.config/lutris'
-        - '- /home/*/.config/obs-studio'
-        - '- /home/*/.config/Dat Desktop'
-        - '- /home/*/.config/IPFS Desktop'
-        - '- /home/*/.config/VirtualBox'
-        - '- /home/*/.config/discord'
-        - '- /home/*/.config/Keybase/Cache'
-        - '- /home/*/.config/Code - OSS'
-        - '- /home/*/.antigen'
-        - '- /home/*/.tmux/plugins'
-        - '- /home/*/Documents/My Games'
-        - '- /home/*/.vim/plugged'
-        # - + /home/susan
-        # - '- /home/*'
+# Any paths matching these patterns are included/excluded from
+# backups. Globs are expanded. (Tildes are not.) Note that
+# Borg considers this option experimental. See the output of
+# "borg help patterns" for more details. Quote any value if it
+# contains leading punctuation, so it parses correctly.
+patterns:
+    # .config/Slack/Cache
+    - '- /home/*/Downloads'
+    # - R /
+    - '- /home/*/.cache'
+    - '- /home/*/.cargo'
+    - '- /home/*/.circleci'
+    - '- /home/*/.cmake'
+    - '- /home/*/.*-gyp'
+    - '- /home/*/.fzf*'
+    - '- /home/*/.hyperdrive'
+    - '- /home/*/.ipfs*'
+    - '- /home/*/.kube'
+    - '- /home/*/.local'
+    - '- /home/*/.minikube'
+    - '- /home/*/.mozilla'
+    - '- /home/*/.npm'
+    - '- /home/*/.nvm'
+    - '- /home/*/.phpls'
+    - '- /home/*/.pipewire-media-session'
+    - '- /home/*/.pki'
+    - '- /home/*/.PlayOnLinux'
+    - '- /home/*/.pm2'
+    - '- /home/*/.rustup'
+    - '- /home/*/.standard-c14-cache'
+    - '- /home/*/.steam*'
+    - '- /home/*/.step'
+    - '- /home/*/.symfony'
+    - '- /home/*/.tor-browser'
+    - '- /home/*/.vmware'
+    - '- /home/*/.vscode-oss'
+    - '- /home/*/.wine'
+    - '- /home/*/.yarn'
+    - '- /home/*/.config/chromium'
+    - '- /home/*/.config/Slack'
+    - '- /home/*/.config/WebTorrent'
+    - '- /home/*/.config/Cypress'
+    - '- /home/*/.config/Beaker Browser'
+    - '- /home/*/.config/lutris'
+    - '- /home/*/.config/obs-studio'
+    - '- /home/*/.config/Dat Desktop'
+    - '- /home/*/.config/IPFS Desktop'
+    - '- /home/*/.config/VirtualBox'
+    - '- /home/*/.config/discord'
+    - '- /home/*/.config/Keybase/Cache'
+    - '- /home/*/.config/Code - OSS'
+    - '- /home/*/.antigen'
+    - '- /home/*/.tmux/plugins'
+    - '- /home/*/Documents/My Games'
+    - '- /home/*/.vim/plugged'
+    - '- /home/*/.bitmonero'
+    - '- /home/*/forks'
+    # - + /home/susan
+    # - '- /home/*'
 
-    # Read include/exclude patterns from one or more separate
-    # named files, one pattern per line. Note that Borg considers
-    # this option experimental. See the output of "borg help
-    # patterns" for more details.
-    # patterns_from:
-        # - /etc/borgmatic/patterns
+# Read include/exclude patterns from one or more separate
+# named files, one pattern per line. Note that Borg considers
+# this option experimental. See the output of "borg help
+# patterns" for more details.
+# patterns_from:
+    # - /etc/borgmatic/patterns
 
-    # Any paths matching these patterns are excluded from backups.
-    # Globs and tildes are expanded. See the output of "borg help
-    # patterns" for more details.
-    exclude_patterns:
-        - '*node_modules*'
-        - '*vendor*'
-        - '*var/cache'
-        # - /etc/ssl
+# Any paths matching these patterns are excluded from backups.
+# Globs and tildes are expanded. See the output of "borg help
+# patterns" for more details.
+exclude_patterns:
+    - '*node_modules*'
+    - '*vendor*'
+    - '*var/cache'
+    # - /etc/ssl
 
-    # Read exclude patterns from one or more separate named files,
-    # one pattern per line. See the output of "borg help patterns"
-    # for more details.
-    # exclude_from:
-        # - /etc/borgmatic/excludes
+# Read exclude patterns from one or more separate named files,
+# one pattern per line. See the output of "borg help patterns"
+# for more details.
+# exclude_from:
+    # - /etc/borgmatic/excludes
 
-    # Exclude directories that contain a CACHEDIR.TAG file. See
-    # http://www.brynosaurus.com/cachedir/spec.html for details.
-    # Defaults to false.
-    # exclude_caches: true
+# Exclude directories that contain a CACHEDIR.TAG file. See
+# http://www.brynosaurus.com/cachedir/spec.html for details.
+# Defaults to false.
+# exclude_caches: true
 
-    # Exclude directories that contain a file with the given
-    # filenames. Defaults to not set.
-    # exclude_if_present:
-        # - .nobackup
+# Exclude directories that contain a file with the given
+# filenames. Defaults to not set.
+# exclude_if_present:
+    # - .nobackup
 
-    # If true, the exclude_if_present filename is included in
-    # backups. Defaults to false, meaning that the
-    # exclude_if_present filename is omitted from backups.
-    # keep_exclude_tags: true
+# If true, the exclude_if_present filename is included in
+# backups. Defaults to false, meaning that the
+# exclude_if_present filename is omitted from backups.
+# keep_exclude_tags: true
 
-    # Exclude files with the NODUMP flag. Defaults to false.
-    # exclude_nodump: true
+# Exclude files with the NODUMP flag. Defaults to false.
+# exclude_nodump: true
 
-    # Path for additional source files used for temporary internal
-    # state like borgmatic database dumps. Note that changing this
-    # path prevents "borgmatic restore" from finding any database
-    # dumps created before the change. Defaults to ~/.borgmatic
-    # borgmatic_source_directory: /tmp/borgmatic
+# Path for additional source files used for temporary internal
+# state like borgmatic database dumps. Note that changing this
+# path prevents "borgmatic restore" from finding any database
+# dumps created before the change. Defaults to ~/.borgmatic
+# borgmatic_source_directory: /tmp/borgmatic
 
 # Repository storage options. See
 # https://borgbackup.readthedocs.io/en/stable/usage/create.html and

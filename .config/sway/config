@@ -42,8 +42,17 @@ input type:touchpad {
 
 input type:keyboard {
   xkb_layout us
-  xkb_variant intl-unicode
+  xkb_variant altgr-intl
   xkb_options caps:escape
+}
+
+input "ThinkPad Extra Buttons" {
+  xkb_model "thinkpad"
+}
+
+input 1133:16495:Logitech_MX_Ergo {
+  scroll_button BTN_EXTRA
+  scroll_method on_button_down
 }
 
 ### Key bindings
@@ -129,26 +138,29 @@ bindsym $mod+c exec ~/.config/sway/scripts/switch_dark_mode.sh
 #
 # Custom keybindings
 #
-bindsym XF86Display exec ~/.config/sway/scripts/kbdbacklight.sh
-bindsym XF86AudioRaiseVolume exec pactl set-sink-volume $(pacmd list-sinks | grep "* index" | awk '{print $3}') +3%
-bindsym XF86AudioLowerVolume exec  pactl set-sink-volume $(pacmd list-sinks | grep "* index" | awk '{print $3}') -3%
-bindsym XF86AudioMute exec pactl set-sink-mute $(pacmd list-sinks | grep "* index" | awk '{print $3}') toggle
-bindsym Shift+XF86AudioMute exec pactl set-source-mute $(pacmd list-sources | grep "* index" | awk '{print $3}') toggle
-bindsym XF86AudioMicMute exec pactl set-source-mute $(pacmd list-sources | grep "* index" | awk '{print $3}') toggle
-# +bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +3%
-# +bindsym XF86AudioLowerVolume exec  pactl set-sink-volume @DEFAULT_SINK@ -3%
-# +bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
-# +bindsym Shift+XF86AudioMute exec pactl set-source-mute @DEFAULT_SINK@ toggle
-# +bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SINK@ toggle
-# bindsym $mod+Shift+x exec systemctl hibernate
-bindsym $mod+Shift+x exec swaylock
-bindsym XF86Search exec grim -g "$(slurp)"
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +3%
+bindsym XF86AudioLowerVolume exec  pactl set-sink-volume @DEFAULT_SINK@ -3%
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle 
+bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle && pactl get-source-mute @DEFAULT_SOURCE@ | grep -q yes && brightnessctl -d platform::micmute specific 1 || brightnessctl -d platform::micmute specific 0
 bindsym Print exec grim -o $(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name')
+# bindsym XF86SelectiveScreenshot exec grim -g "$(slurp)"
+bindsym XF86Launch2 exec grim -g "$(slurp)"
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+
 bindsym XF86AudioPlay exec playerctl play-pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
-bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
-bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+
+# XF86Display
+# XF86PickupPhone
+# XF86HangupPhone 
+# XF86Favorites
+
+bindsym $mod+Shift+x exec swaylock
+# XF86WLAN already binded low-level rfkill ??? 
+# bindsym $mod+Shift+x exec systemctl hibernate
+# bindsym XF86Display exec ~/.config/sway/scripts/kbdbacklight.sh
 
 #
 # Resizing containers:
@@ -176,4 +188,4 @@ exec dbus-update-activation-environment --all
 exec waybar
 exec udiskie --appindicator -t
 exec blueman-applet
-exec systemctl --user start wpa_gui
+# exec systemctl --user start wpa_gui

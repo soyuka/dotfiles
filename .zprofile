@@ -1,3 +1,5 @@
+export LC_ALL=en_US.UTF-8
+export LANG=fr_FR.UTF-8
 export EDITOR='vim'
 export SQITCH_EDITOR='vim'
 export ANDROID_HOME="${HOME}/Android/Sdk"
@@ -14,6 +16,7 @@ export MANPAGER="less -Rf" issues with colors
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_TYPE=wayland
 
+export GPG_TTY=$(tty)
 # PHPStorm needs that on wayland 
 export _JAVA_AWT_WM_NONREPARENTING=1
 
