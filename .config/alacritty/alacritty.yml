@@ -65,19 +65,19 @@ draw_bold_text_with_bright_colors: true
 font:
   # The normal (roman) font face to use.
   normal:
-    family: "Source Code Pro" # should be "Menlo" or something on macOS.
+    family: "SauceCodePro Nerd Font" # should be "Menlo" or something on macOS.
     # Style can be specified to pick a specific face.
     # style: Regular
 
   # The bold font face
   bold:
-    family: "Source Code Pro" # should be "Menlo" or something on macOS.
+    family: "SauceCodePro Nerd Font" # should be "Menlo" or something on macOS.
     # Style can be specified to pick a specific face.
     style: Bold
 
   # The italic font face
   italic:
-    family: "Source Code Pro" # should be "Menlo" or something on macOS.
+    family: "SauceCodePro Nerd Font" # should be "Menlo" or something on macOS.
     # Style can be specified to pick a specific face.
     style: Italic
 
@@ -96,11 +96,6 @@ font:
   glyph_offset:
     x: 0
     y: 0
-
-  # OS X only: use thin stroke font rendering. Thin strokes are suitable
-  # for retina displays, but for non-retina you probably want this set to
-  # false.
-  use_thin_strokes: true
 
 # Visual Bell
 #

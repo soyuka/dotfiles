@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "coc-phpls": ">=2.2.2",
+    "coc-json": ">=1.6.1",
+    "coc-php-cs-fixer": ">=0.7.4",
+    "coc-prettier": ">=9.3.1",
+    "coc-phpactor": ">=1.0.3",
+    "coc-psalm": ">=0.12.1",
+    "@yaegassy/coc-phpstan": ">=0.4.1",
+    "@yaegassy/coc-intelephense": ">=0.24.6"
+  },
+  "lastUpdate": 1682366782770
+}

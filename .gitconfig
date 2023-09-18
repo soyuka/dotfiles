@@ -1,8 +1,15 @@
 [user]
 	email = soyuka@users.noreply.github.com
 	name = soyuka
-	signingkey = 62D05354C61458CB8378FD323F82299C64F51AD2
+	signingkey = 3F82299C64F51AD2
 [core]
 	excludesfile = /home/soyuka/.gitignore-global
 [init]
 	defaultBranch = main
+[commit]
+	gpgsign = true
+[committer]
+	email = soyuka@users.noreply.github.com
+[push]
+	autoSetupRemote = true
+

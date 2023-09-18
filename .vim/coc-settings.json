@@ -1,0 +1,19 @@
+{
+  "php-cs-fixer.enableFormatProvider": true,
+  "php-cs-fixer.toolPath": "/home/soyuka/.local/bin/php-cs-fixer",
+  "php-cs-fixer.useCache": true,
+  "php-cs-fixer.rules": "",
+  "suggest.noselect": true,
+  "phpstan.toolPath": "/home/soyuka/.local/bin/phpstan",
+  "phpstan.download.checkOnStartup": false,
+  "phpactor.enable": false,
+  "phpactor.config": {
+    "prophecy.enabled": true,
+    "symfony.enabled": true,
+    "behat.enabled": true,
+    "phpunit.enabled": true,
+    "language_server_php_cs_fixer.enabled": true,
+    "language_server_psalm.enabled": true,
+    "language_server_phpstan.enabled": true
+  },
+}
