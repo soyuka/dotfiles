@@ -113,7 +113,8 @@ patterns:
     - '- /home/*/Documents/My Games'
     - '- /home/*/.vim/plugged'
     - '- /home/*/.bitmonero'
-    - '- /home/*/forks'
+    - '- /home/*/.bitmonero'
+    - '- /home/*/Games'
     # - + /home/susan
     # - '- /home/*'
 

@@ -5,6 +5,9 @@ export SQITCH_EDITOR='vim'
 export ANDROID_HOME="${HOME}/Android/Sdk"
 # rust, andoid, composer global and local, then local node
 export PATH="$PATH:$HOME/tesseract:$HOME/.cargo/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$HOME/.composer/vendor/bin:vendor/bin:node_modules/.bin:$HOME/.local/bin:$HOME/.yarn/bin:$HOME/go/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:/usr/lib/emsdk/upstream/emscripten:$HOME/.local/share/gem/ruby/3.0.0/bin:$HOME/.vim/plugged/phpactor/bin"
+# export PATH=$HOME/forks/depot_tools:$PATH
+export PATH=$PATH:$HOME/.local/share/nvim/lazy/phpactor/bin
+export PATH="/home/soyuka/.deno/bin:$PATH"
 # nvm, node
 export NVM_DIR="${HOME}/.nvm"
 export NVM_LAZY_LOAD=true
@@ -28,4 +31,6 @@ if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
   # exec startx
   exec sway
 fi
+
+source .secret_env
 

@@ -1,0 +1,6 @@
+[Unit]
+Description=PGAdmin 4
+
+[Service]
+Type=simple
+ExecStart=/home/soyuka/.local/bin/pgadmin4/bin/pgadmin4

@@ -26,6 +26,7 @@ ZSH_THEME_GIT_TIME_SINCE_COMMIT_LONG="%{$fg[red]%}"
 ZSH_THEME_GIT_TIME_SINCE_COMMIT_NEUTRAL="%{$fg[grey]%}"
 
 PROMPT='$(is_super_user)$(git_prompt_info)❯ '
+# PROMPT='$ '
 
 PROMPT2='%{$fg[grey]%}❮%{$reset_color%} %3~%'
 

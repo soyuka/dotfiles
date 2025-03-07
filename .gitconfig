@@ -4,6 +4,7 @@
 	signingkey = 3F82299C64F51AD2
 [core]
 	excludesfile = /home/soyuka/.gitignore-global
+	editor = nvim
 [init]
 	defaultBranch = main
 [commit]
@@ -13,3 +14,7 @@
 [push]
 	autoSetupRemote = true
 
+[merge "ours"]
+	driver = true
+[merge "union"]
+	driver = true

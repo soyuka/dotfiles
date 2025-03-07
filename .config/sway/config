@@ -61,11 +61,11 @@ input 1133:16495:Logitech_MX_Ergo {
 # Basics:
 #
 bindsym $mod+Return exec $term -e ~/.config/sway/scripts/tmux.sh
-bindsym $mod+Shift+Return exec $term --config-file ~/.config/alacritty/alacritty.light.yml
+bindsym $mod+Shift+Return exec $term
 
 bindsym $mod+Shift+q kill
 
-bindsym $mod+Space exec wofi --show=run
+bindsym $mod+Space exec wofi --show=drun
 
 floating_modifier $mod normal
 
@@ -142,9 +142,9 @@ bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +3%
 bindsym XF86AudioLowerVolume exec  pactl set-sink-volume @DEFAULT_SINK@ -3%
 bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle 
 bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle && pactl get-source-mute @DEFAULT_SOURCE@ | grep -q yes && brightnessctl -d platform::micmute specific 1 || brightnessctl -d platform::micmute specific 0
-bindsym Print exec grim -o $(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name')
-# bindsym XF86SelectiveScreenshot exec grim -g "$(slurp)"
-bindsym XF86Launch2 exec grim -g "$(slurp)"
+bindsym Print exec grim -o $(swaymsg -t get_outputs -r | jq -r '.[] | select(.focused) | .name')
+bindsym XF86SelectiveScreenshot exec grim -g "$(slurp)"
+# bindsym XF86Launch2 exec grim -g "$(slurp)"
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 bindsym XF86MonBrightnessUp exec brightnessctl set +5%
 

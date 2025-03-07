@@ -99,7 +99,7 @@ if has("termguicolors")
   set termguicolors
 endif
 
-source ~/.vim/color.white
+source ~/.vim/color.black
 
 syntax on
 
