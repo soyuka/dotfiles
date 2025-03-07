@@ -1,0 +1,33 @@
+let s:distraction_mode = 1
+
+function! FullMode()
+  let s:distraction_mode = 1
+  set showmode
+  set ruler
+  set laststatus=2
+  set showcmd
+  set number
+  let g:miniBufExplorerAutoStart = 1
+  call gitgutter#enable()
+endfunction
+
+function! CleanMode()
+  let s:distraction_mode = 0
+  set noshowmode
+  set noruler
+  set laststatus=0
+  set noshowcmd
+  set nonumber
+  let g:miniBufExplorerAutoStart = 0
+
+  " call MBEClose()
+  call gitgutter#disable()
+endfunction
+
+function! ToggleNoDistractionMode()
+  if s:distraction_mode  == 0
+    call FullMode()
+  else
+    call CleanMode()
+  endif
+endfunction

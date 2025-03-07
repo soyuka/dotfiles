@@ -1,6 +1,7 @@
 /*
 !.config
 .config/*
+!.config/nvim
 !.config/alacritty
 !.config/borgmatic
 !.config/clight.conf
@@ -27,3 +28,4 @@
 !.zprofile
 !.zshrc
 .config/systemd/user/borgmatic.service.d/override.conf
+.secret_env
