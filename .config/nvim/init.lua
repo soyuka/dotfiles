@@ -15,6 +15,7 @@ set.scrolloff = 5
 set.sidescrolloff = 5
 set.showmatch = true
 set.tabstop = 2
+set.relativenumber = true
 set.shiftwidth = 2
 set.softtabstop = 2
 set.expandtab = true
@@ -44,9 +45,33 @@ set.rtp:prepend(lazypath)
 require("lazy").setup({
   { 'tpope/vim-markdown' },
   {
+    'nvim-tree/nvim-tree.lua',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('nvim-tree').setup()
+      -- Autoclose https://github.com/nvim-tree/nvim-tree.lua/issues/1368
+      vim.api.nvim_create_autocmd("QuitPre", {
+        callback = function()
+          local invalid_win = {}
+          local wins = vim.api.nvim_list_wins()
+          for _, w in ipairs(wins) do
+            local bufname = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(w))
+            if bufname:match("NvimTree_") ~= nil then
+              table.insert(invalid_win, w)
+            end
+          end
+          if #invalid_win == #wins - 1 then
+            -- Should quit, so we close all invalid windows.
+            for _, w in ipairs(invalid_win) do vim.api.nvim_win_close(w, true) end
+          end
+        end
+      })
+    end
+  },
+  {
     'olimorris/onedarkpro.nvim',
     -- 'lourenci/github-colors',
-    lazy = false,    -- make sure we load this during startup if it is your main colorscheme
+    lazy = false,  -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
       -- load the colorscheme here
@@ -56,6 +81,15 @@ require("lazy").setup({
         vim.cmd("colorscheme onedark")
       end
     end,
+  },
+  { "FooSoft/vim-argwrap",
+    config = function()
+      vim.g.argwrap_tail_comma = 1
+    end,
+    cmd = "ArgWrap",
+    keys = {
+      { "<leader>j", "<CMD>ArgWrap<CR>" },
+    },
   },
   { 'isobit/vim-caddyfile' },
   { 'christoomey/vim-tmux-navigator', lazy = false },
@@ -78,27 +112,47 @@ require("lazy").setup({
   },
   { 'numToStr/Comment.nvim',     config = function() require('Comment').setup() end },
   { 'nvim-lualine/lualine.nvim', config = function() require('lualine').setup() end },
+  -- {
+  --   'nvim-tree/nvim-tree.lua',
+  --   dependencies = { 'nvim-tree/nvim-web-devicons' },
+  --   config = function()
+  --     require('nvim-tree').setup()
+  --     -- Autoclose https://github.com/nvim-tree/nvim-tree.lua/issues/1368
+  --     vim.api.nvim_create_autocmd("QuitPre", {
+  --       callback = function()
+  --         local invalid_win = {}
+  --         local wins = vim.api.nvim_list_wins()
+  --         for _, w in ipairs(wins) do
+  --           local bufname = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(w))
+  --           if bufname:match("NvimTree_") ~= nil then
+  --             table.insert(invalid_win, w)
+  --           end
+  --         end
+  --         if #invalid_win == #wins - 1 then
+  --           -- Should quit, so we close all invalid windows.
+  --           for _, w in ipairs(invalid_win) do vim.api.nvim_win_close(w, true) end
+  --         end
+  --       end
+  --     })
+  --   end
+  -- },
   {
-    'nvim-tree/nvim-tree.lua',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    config = function()
-      require('nvim-tree').setup()
-      -- Autoclose https://github.com/nvim-tree/nvim-tree.lua/issues/1368
-      vim.api.nvim_create_autocmd("QuitPre", {
-        callback = function()
-          local invalid_win = {}
-          local wins = vim.api.nvim_list_wins()
-          for _, w in ipairs(wins) do
-            local bufname = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(w))
-            if bufname:match("NvimTree_") ~= nil then
-              table.insert(invalid_win, w)
-            end
-          end
-          if #invalid_win == #wins - 1 then
-            -- Should quit, so we close all invalid windows.
-            for _, w in ipairs(invalid_win) do vim.api.nvim_win_close(w, true) end
-          end
-        end
+    'stevearc/oil.nvim',
+    ---@module 'oil'
+    ---@type oil.SetupOpts
+    opts = {},
+    -- Optional dependencies
+    dependencies = { { "echasnovski/mini.icons", opts = {} } },
+    -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+    -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+    lazy = false,
+    config = function ()
+      local oil = require('oil')
+      oil.setup({
+        keymaps = {
+          ["<C-h>"] = false,
+          ["<C-l>"] = false,
+        },
       })
     end
   },
@@ -132,9 +186,13 @@ require("lazy").setup({
             }
           end
 
-          lspconfig.postgres_lsp.setup {
-            cmd = { "postgres_lsp", "lsp-proxy", "--config-path=/home/soyuka/work/owen/owen-union-sociale-des-scop-et-scic" }
+          lspconfig.ts_ls.setup {
+            cmd = { "deno", "run", "--allow-all", "npm:typescript-language-server", "--stdio" }
           }
+
+          -- lspconfig.postgres_lsp.setup {
+          --   cmd = { "postgres_lsp", "lsp-proxy", "--config-path=/home/soyuka/work/owen/owen-union-sociale-des-scop-et-scic" }
+          -- }
 
           lspconfig.intelephense.setup {
             cmd = { "deno", "run", "--allow-all", "npm:intelephense", "--", "--stdio" }
@@ -142,6 +200,14 @@ require("lazy").setup({
 
           lspconfig.sqlls.setup {
             cmd = { "deno", "run", "--allow-all", "npm:sql-language-server", "--", "--stdio" }
+          }
+
+          lspconfig.jsonls.setup {
+            cmd = { "deno", "run", "--allow-all", "npm:vscode-json-languageserver", "--", "--stdio" }
+          }
+
+          lspconfig.yamlls.setup {
+            cmd = { "deno", "run", "--allow-all", "npm:yaml-language-server", "--", "--stdio" }
           }
         end
       },
@@ -198,6 +264,7 @@ require("lazy").setup({
       'nvim-lua/plenary.nvim',
       'nvim-telescope/telescope-fzf-native.nvim',
       'nvim-telescope/telescope-ui-select.nvim',
+      'nvim-telescope/telescope-dap.nvim',
     },
     config = function()
       local telescope = require('telescope')
@@ -217,6 +284,7 @@ require("lazy").setup({
       })
 
       telescope.load_extension("ui-select")
+      telescope.load_extension("dap")
     end
   },
   'nelsyeung/twig.vim',
@@ -231,6 +299,7 @@ require("lazy").setup({
     config = function()
       require("conform").setup({
         formatters_by_ft = {
+          php = { lsp_format = "first" },
           -- lua = { "stylua" },
           -- Conform will run multiple formatters sequentially
           -- python = { "isort", "black" },
@@ -245,175 +314,154 @@ require("lazy").setup({
     end
   },
   {
-    "Davidyz/VectorCode",
-    version = "*",
-    build = "pipx upgrade vectorcode", -- optional but recommended if you set `version = "*"`
-    dependencies = { "nvim-lua/plenary.nvim" },
-    cmd = "VectorCode",
-    config = function()
-      require("vectorcode").setup({
-        async_backend = "lsp", -- or "lsp"
-        -- number of retrieved documents
-        -- n_query = 1,
-      })
-    end
-
-  },
-  {
     "robitx/gp.nvim",
     config = function()
-      local conf = {
-        default_command_agent = 'gemini-2.0-flash',
-        default_chat_agent = 'gemini-2.0-flash',
-        providers = {
-          openai = {
-            disable = true,
-          },
-          googleai = {
-            disable = false,
-            endpoint =
-            "https://generativelanguage.googleapis.com/v1beta/models/{{model}}:streamGenerateContent?key={{secret}}",
-            secret = os.getenv("GEMINI_API_KEY")
-          },
-
-        },
-        agents = {
-          {
-            provider = "googleai",
-            name = "CodeGemini",
-            chat = true,
-            command = true,
-            model = { model = "gemini-2.0-flash" },
-            system_prompt =
-            [[
-Respond to user messages according to the following principles:
-- Do not repeat the user's request and return only the response to the user's request.
-- Unless otherwise specified, respond in the same language as used in the user's request.
-- Be as accurate as possible.
-- Be as truthful as possible.
-- Be as comprehensive and informative as possible.
-
-9. Additional context from other files in the repository will be enclosed in <repo_context> tags. Each file will be separated by <file_separator> tags, containing its relative path and content.
-            ]]
-          }
-        },
-        hooks = {
-          CodeWithContext = function(gp, params)
-            local vectorcode_cacher = require("vectorcode.config").get_cacher_backend()
-            local prompt_message = ''
-            local cache_result = vectorcode_cacher.query_from_cache()
-            for _, file in ipairs(cache_result) do
-              prompt_message = prompt_message
-                  .. '<file_separator>'
-                  .. file.path
-                  .. '\n'
-                  .. file.document
-            end
-
-            if prompt_message ~= '' then
-              prompt_message = '<repo_context>\n' .. prompt_message .. '\n</repo_context>'
-            end
-
-            prompt_message = prompt_message .. "\nThis is my instruction from {{filename}}:\n\n"
-                .. "```{{filetype}}\n{{selection}}\n```"
-            local agent = gp.get_command_agent()
-            gp.Prompt(params, gp.Target.rewrite, agent, prompt_message)
-          end,
-          ChatWithContext = function(gp, params)
-            local vectorcode_cacher = require("vectorcode.config").get_cacher_backend()
-            local prompt_message = ''
-            local cache_result = vectorcode_cacher.query_from_cache()
-            for _, file in ipairs(cache_result) do
-              prompt_message = prompt_message
-                  .. '<file_separator>'
-                  .. file.path
-                  .. '\n'
-                  .. file.document
-            end
-
-            if prompt_message ~= '' then
-              prompt_message = '<repo_context>\n' .. prompt_message .. '\n</repo_context>'
-            end
-
-            gp.cmd.ChatNew(params, prompt_message)
-          end,
-
-        }
-      }
-
-      require("gp").setup(conf)
+      require("gp").setup(require('./prompt-config'))
     end,
   },
   {
-    'milanglacier/minuet-ai.nvim',
-    config = function()
-      local vectorcode_cacher = require("vectorcode.config").get_cacher_backend()
-
-      require('minuet').setup {
-        -- after_cursor_filter_length = 30,
-        -- n_completions = 1, -- recommend for local model for resource saving
-        provider = 'gemini',
-        -- after_cursor_filter_length = 30,
-        notify = 'debug',
-        provider_options = {
-          gemini = {
-            model = 'gemini-2.0-flash',
-            api_key = 'GEMINI_API_KEY',
-            system = {
-              template = '{{{prompt}}}\n{{{guidelines}}}\n{{{n_completion_template}}}\n{{{repo_context}}}',
-              repo_context = [[9. Additional context from other files in the repository will be enclosed in <repo_context> tags. Each file will be separated by <file_separator> tags, containing its relative path and content.]],
-            },
-            chat_input = {
-              template = '{{{repo_context}}}\n{{{language}}}\n{{{tab}}}\n<contextBeforeCursor>\n{{{context_before_cursor}}}<cursorPosition>\n<contextAfterCursor>\n{{{context_after_cursor}}}',
-              repo_context = function(_, _, _)
-                local prompt_message = ''
-                local cache_result = vectorcode_cacher.query_from_cache()
-
-                for _, file in ipairs(cache_result) do
-                  prompt_message = prompt_message
-                      .. '<file_separator>'
-                      .. file.path
-                      .. '\n'
-                      .. file.document
-                end
-                if prompt_message ~= '' then
-                  prompt_message = '<repo_context>\n' .. prompt_message .. '\n</repo_context>'
-                end
-                return prompt_message
-              end,
-            },
-          },
-          -- openai_fim_compatible = {
-          --   model = 'qwen2.5-coder-7b-instruct',
-          --   end_point = 'http://127.0.0.1:1234/v1/completions',
-          --   api_key = function() return 'dummy' end,
-          --   stream = true,
-          --   -- optional = {
-          --   --   max_tokens = 56,
-          --   --   top_p = 0.9,
-          --   -- },
-          --   template = {
-          --     prompt = function(pref, suff)
-          --       local prompt_message = ""
-          --       local cache_result = vectorcode_cacher.query_from_cache(0)
-          --       for _, file in ipairs(cache_result) do
-          --         prompt_message = prompt_message .. "<|file_sep|>" .. file.path .. "\n" .. file.document
-          --       end
-          --       return prompt_message
-          --           .. "<|fim_prefix|>"
-          --           .. pref
-          --           .. "<|fim_suffix|>"
-          --           .. suff
-          --           .. "<|fim_middle|>"
-          --     end,
-          --     suffix = false,
-          --   },
-          -- }
-        }
-      }
-    end,
-    dependencies = {
-      'nvim-lua/plenary.nvim'
-    }
+    "mfussenegger/nvim-dap",
   },
+  { 
+    "rcarriga/nvim-dap-ui", dependencies = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"},
+    config = function()
+      require('dapui').setup({
+        layouts = {
+          {
+            elements = {
+              { id = "scopes", size = 0.25 },
+              { id = "breakpoints", size = 0.25 },
+              { id = "watches", size = 0.25 },
+            },
+            position = "left",
+            size = 40
+          },
+          {
+            elements = {
+              { id = "repl", size = 0.5 },
+              { id = "stacks", size = 0.5 },
+            },
+            position = "bottom",
+            size = 10
+          }
+        }
+      })
+    end
+  }
+
+  -- {
+  --   "Davidyz/VectorCode",
+  --   version = "*",
+  --   build = "pipx upgrade vectorcode", -- optional but recommended if you set `version = "*"`
+  --   dependencies = { "nvim-lua/plenary.nvim" },
+  --   cmd = "VectorCode",
+  --   config = function()
+  --     require("vectorcode").setup({
+  --        async_backend = "lsp", -- or "lsp"
+  --       -- number of retrieved documents
+  --       -- n_query = 1,
+  --     })
+  --     local vectorcode_cacher = require("vectorcode.config").get_cacher_backend()
+  --     vim.api.nvim_create_autocmd({ 'BufReadPre' }, {
+  --       pattern = { "*.php", "*.sql", "*.js", "*.ts", "*.md" },
+  --       callback = function(args)
+  --         if not vectorcode_cacher.buf_is_registered(args.buf) then
+  --           vectorcode_cacher.register_buffer(
+  --             args.buf,
+  --             {
+  --               n_query = 1,
+  --               exclude_this = false,
+  --
+  --             }
+  --           )
+  --         end
+  --       end
+  --     })
+  --
+  --     vim.api.nvim_create_autocmd({ 'BufDelete' }, {
+  --       pattern = { "*.php", "*.sql", "*.js", "*.ts", "*.md" },
+  --       callback = function(args)
+  --         if vectorcode_cacher.buf_is_registered(args.buf) then
+  --           vectorcode_cacher.deregister_buffer(
+  --             args.buf
+  --           )
+  --         end
+  --       end,
+  --     })
+  --   end
+  -- },
+  -- {
+  --   "robitx/gp.nvim",
+  --   config = function()
+  --     require("gp").setup(require('./prompt-config'))
+  --   end,
+  -- },
+  -- {
+  --   'milanglacier/minuet-ai.nvim',
+  --   config = function()
+  --     local vectorcode_cacher = require("vectorcode.config").get_cacher_backend()
+  --
+  --     require('minuet').setup {
+  --       -- after_cursor_filter_length = 30,
+  --       -- n_completions = 1, -- recommend for local model for resource saving
+  --       provider = 'gemini',
+  --       -- after_cursor_filter_length = 30,
+  --       notify = 'debug',
+  --       provider_options = {
+  --         gemini = {
+  --           model = 'gemini-2.0-flash',
+  --           api_key = 'GEMINI_API_KEY',
+  --           system = {
+  --             template = '{{{prompt}}}\n{{{guidelines}}}\n{{{n_completion_template}}}\n{{{repo_context}}}',
+  --             -- repo_context = [[9. Additional context from other files in the repository will be enclosed in <repo_context> tags. Each file will be separated by <file_separator> tags, containing its relative path and content.]],
+  --           },
+  --           chat_input = {
+  --             template = '{{{repo_context}}}\n{{{language}}}\n{{{tab}}}\n<contextBeforeCursor>\n{{{context_before_cursor}}}<cursorPosition>\n<contextAfterCursor>\n{{{context_after_cursor}}}',
+  --             -- repo_context = function(_, _, _)
+  --             --   local prompt_message = ''
+  --             --   local cache_result = vectorcode_cacher.query_from_cache()
+  --             --
+  --             --   for _, file in ipairs(cache_result) do
+  --             --     prompt_message = prompt_message
+  --             --         .. '<file_separator>'
+  --             --         .. file.path
+  --             --         .. '\n'
+  --             --         .. file.document
+  --             --   end
+  --             --   if prompt_message ~= '' then
+  --             --     prompt_message = '<repo_context>\n' .. prompt_message .. '\n</repo_context>'
+  --             --   end
+  --             --   return prompt_message
+  --             -- end,
+  --           },
+  --         },
+  --         openai_fim_compatible = {
+  --           model = 'qwen2.5-coder-7b-instruct',
+  --           end_point = 'http://127.0.0.1:1234/v1/completions',
+  --           api_key = function() return 'dummy' end,
+  --           stream = true,
+  --           template = {
+  --             prompt = function(pref, suff)
+  --               local prompt_message = ""
+  --               local cache_result = vectorcode_cacher.query_from_cache(0)
+  --               for _, file in ipairs(cache_result) do
+  --                 prompt_message = prompt_message .. "<|file_sep|>" .. file.path .. "\n" .. file.document
+  --               end
+  --               return prompt_message
+  --                   .. "<|fim_prefix|>"
+  --                   .. pref
+  --                   .. "<|fim_suffix|>"
+  --                   .. suff
+  --                   .. "<|fim_middle|>"
+  --             end,
+  --             suffix = false,
+  --           },
+  --         }
+  --       }
+  --     }
+  --   end,
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim'
+  --   }
+  -- },
 })
