@@ -112,30 +112,6 @@ require("lazy").setup({
   },
   { 'numToStr/Comment.nvim',     config = function() require('Comment').setup() end },
   { 'nvim-lualine/lualine.nvim', config = function() require('lualine').setup() end },
-  -- {
-  --   'nvim-tree/nvim-tree.lua',
-  --   dependencies = { 'nvim-tree/nvim-web-devicons' },
-  --   config = function()
-  --     require('nvim-tree').setup()
-  --     -- Autoclose https://github.com/nvim-tree/nvim-tree.lua/issues/1368
-  --     vim.api.nvim_create_autocmd("QuitPre", {
-  --       callback = function()
-  --         local invalid_win = {}
-  --         local wins = vim.api.nvim_list_wins()
-  --         for _, w in ipairs(wins) do
-  --           local bufname = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(w))
-  --           if bufname:match("NvimTree_") ~= nil then
-  --             table.insert(invalid_win, w)
-  --           end
-  --         end
-  --         if #invalid_win == #wins - 1 then
-  --           -- Should quit, so we close all invalid windows.
-  --           for _, w in ipairs(invalid_win) do vim.api.nvim_win_close(w, true) end
-  --         end
-  --       end
-  --     })
-  --   end
-  -- },
   {
     'stevearc/oil.nvim',
     ---@module 'oil'
@@ -259,6 +235,16 @@ require("lazy").setup({
     end
   },
   {
+    "ibhagwan/fzf-lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {},
+    config = function() 
+      require("fzf-lua").setup({
+        "hide",
+      })
+    end
+  },
+  {
     'nvim-telescope/telescope.nvim',
     dependencies = {
       'nvim-lua/plenary.nvim',
@@ -325,27 +311,28 @@ require("lazy").setup({
   { 
     "rcarriga/nvim-dap-ui", dependencies = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"},
     config = function()
-      require('dapui').setup({
-        layouts = {
-          {
-            elements = {
-              { id = "scopes", size = 0.25 },
-              { id = "breakpoints", size = 0.25 },
-              { id = "watches", size = 0.25 },
-            },
-            position = "left",
-            size = 40
-          },
-          {
-            elements = {
-              { id = "repl", size = 0.5 },
-              { id = "stacks", size = 0.5 },
-            },
-            position = "bottom",
-            size = 10
-          }
-        }
-      })
+      require('dapui').setup()
+      -- require('dapui').setup({
+      --   layouts = {
+      --     {
+      --       elements = {
+      --         { id = "scopes", size = 0.25 },
+      --         { id = "breakpoints", size = 0.25 },
+      --         { id = "watches", size = 0.25 },
+      --       },
+      --       position = "left",
+      --       size = 40
+      --     },
+      --     {
+      --       elements = {
+      --         { id = "repl", size = 0.5 },
+      --         { id = "stacks", size = 0.5 },
+      --       },
+      --       position = "bottom",
+      --       size = 10
+      --     }
+      --   }
+      -- })
     end
   }
 
