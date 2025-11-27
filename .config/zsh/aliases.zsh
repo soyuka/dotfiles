@@ -28,7 +28,7 @@ copy() {
 }
 
 v() {
-  vim $@
+  nvim $@
 }
 
 rmi() {
