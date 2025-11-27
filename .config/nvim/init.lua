@@ -27,7 +27,7 @@ set.splitright = true
 set.splitbelow = true
 set.cul = true
 set.completeopt = { 'menu', 'menuone', 'noselect' }
-set.background = "light"
+set.background = "dark"
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -94,7 +94,20 @@ require("lazy").setup({
   { 'isobit/vim-caddyfile' },
   { 'christoomey/vim-tmux-navigator', lazy = false },
   { 'ap/vim-css-color' },
-  { 'ap/vim-buftabline' },
+  -- { 'ap/vim-buftabline' },
+  {
+    'akinsho/bufferline.nvim', version = "*", dependencies = 'echasnovski/mini.icons', config = function ()
+        require('bufferline').setup({
+            options = {
+                auto_toggle_bufferline = true,
+                always_show_bufferline = false,
+                show_buffer_icons = false,
+                show_close_icon = false,
+                show_buffer_close_icons = false,
+            }
+        })
+    end
+  },
   { 'famiu/bufdelete.nvim' },
   { 'windwp/nvim-autopairs',          config = function() require('nvim-autopairs').setup() end },
   {
@@ -138,7 +151,6 @@ require("lazy").setup({
       {
         'neovim/nvim-lspconfig',
         config = function()
-          local lspconfig = require('lspconfig')
           local servers = {
             "lua_ls",
             "intelephense", -- waiting for https://github.com/phpspec/prophecy-phpunit/pull/56 lol
@@ -155,36 +167,45 @@ require("lazy").setup({
           }
 
           for _, lsp in ipairs(servers) do
-            lspconfig[lsp].setup {
+            vim.lsp.config(lsp, {
               flags = {
                 debounce_text_changes = 150,
               }
-            }
+            })
           end
 
-          lspconfig.ts_ls.setup {
-            cmd = { "deno", "run", "--allow-all", "npm:typescript-language-server", "--stdio" }
-          }
-
+          vim.lsp.config('ts_ls', {
+            cmd = { "deno", "run", "--allow-all", "npm:typescript-language-server", "--", "--stdio" },
+            filetypes = { 'ts' }
+          })
+          
           -- lspconfig.postgres_lsp.setup {
           --   cmd = { "postgres_lsp", "lsp-proxy", "--config-path=/home/soyuka/work/owen/owen-union-sociale-des-scop-et-scic" }
           -- }
+          
+          vim.lsp.config('intelephense', {
+            cmd = { "deno", "run", "--allow-all", "npm:intelephense", "--", "--stdio" },
+            filetypes = { 'php' }
+          })
+          
+          vim.lsp.config('sqll', {
+            cmd = { "deno", "run", "--allow-all", "npm:sql-language-server", "--", "--stdio" },
+            filetypes = { 'sql' }
+          })
+          
+          vim.lsp.config('jsonls', {
+            cmd = { "deno", "run", "--allow-all", "npm:vscode-json-languageserver", "--", "--stdio" },
+            filetypes = { 'json', 'jsonc', 'json5' }
+          })
+          
+          vim.lsp.config('yamlls', {
+            cmd = { "deno", "run", "--allow-all", "npm:yaml-language-server", "--", "--stdio" },
+            filetypes = { 'yaml', 'yml' }
+          })
+          for _, lsp in ipairs(servers) do
+            vim.lsp.enable(lsp)
+          end
 
-          lspconfig.intelephense.setup {
-            cmd = { "deno", "run", "--allow-all", "npm:intelephense", "--", "--stdio" }
-          }
-
-          lspconfig.sqlls.setup {
-            cmd = { "deno", "run", "--allow-all", "npm:sql-language-server", "--", "--stdio" }
-          }
-
-          lspconfig.jsonls.setup {
-            cmd = { "deno", "run", "--allow-all", "npm:vscode-json-languageserver", "--", "--stdio" }
-          }
-
-          lspconfig.yamlls.setup {
-            cmd = { "deno", "run", "--allow-all", "npm:yaml-language-server", "--", "--stdio" }
-          }
         end
       },
       'sindrets/diffview.nvim',
@@ -206,8 +227,7 @@ require("lazy").setup({
         'phpactor/phpactor',
         build = 'composer install --no-dev -o',
         config = function()
-          local lspconfig = require('lspconfig')
-          lspconfig.phpactor.setup {
+          vim.lsp.config('phpactor', {
             init_options = {
               ["language_server_phpstan.enabled"] = true,
               ["language_server_phpstan.bin"] = '/home/soyuka/.local/bin/phpstan',
@@ -216,22 +236,23 @@ require("lazy").setup({
               ["language_server_php_cs_fixer.enabled"] = true,
               ["language_server_php_cs_fixer.bin"] = '/home/soyuka/.local/bin/php-cs-fixer',
             },
+            filetypes = { 'php' },
             flags = {
               debounce_text_changes = nil,
             }
-          }
+          })
+
+          vim.lsp.enable('phpactor')
+
         end
       },
     },
     config = function()
-      local lspconfig = require('lspconfig')
-      local lsp_defaults = lspconfig.util.default_config
-
-      lsp_defaults.capabilities = vim.tbl_deep_extend(
-        'force',
-        lsp_defaults.capabilities,
-        require('cmp_nvim_lsp').default_capabilities()
-      )
+      vim.lsp.config('*', {
+        capabilities = {
+          require('cmp_nvim_lsp').default_capabilities()
+        }
+      })
     end
   },
   {
@@ -272,6 +293,15 @@ require("lazy").setup({
       telescope.load_extension("ui-select")
       telescope.load_extension("dap")
     end
+  },
+  {
+      "rachartier/tiny-inline-diagnostic.nvim",
+      event = "VeryLazy",
+      priority = 1000,
+      config = function()
+          require("tiny-inline-diagnostic").setup()
+          vim.diagnostic.config({ virtual_text = false }) -- Disable Neovim's default virtual text diagnostics
+      end,
   },
   'nelsyeung/twig.vim',
   'sindrets/diffview.nvim',

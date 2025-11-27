@@ -20,9 +20,14 @@ local conf = {
   --   return prompt_message
   -- end,
   providers = {
+    -- openai = {
+    --   disable = true,
+    -- },
     openai = {
-      disable = true,
-    },
+			disable = false,
+			endpoint = "https://codestral.mistral.ai/v1/chat/completions",
+			secret = os.getenv("MISTRAL_API_KEY"),
+		},
     googleai = {
       disable = false,
       endpoint =
@@ -32,6 +37,27 @@ local conf = {
 
   },
   agents = {
+    {
+      provider = "openai",
+      name = "Mistral",
+      chat = true,
+      command = true,
+      model = { model = "" },
+      system_prompt =
+      [[
+Respond to user messages according to the following principles:
+- Do not repeat the user's request and return only the response to the user's request.
+- Unless otherwise specified, respond in the same language as used in the user's request.
+- Be as accurate as possible.
+- Be as truthful as possible.
+- Be as comprehensive and informative as possible.
+- Do not give any explanation unless explicitly asked for.
+- In PHP use PHP 8 attributes and functionalities if possible (match, fn)
+- Do not add comments explaining what you did I understand the code
+- You can add doc-block comments on function arguments if needed
+- Do not change the given code even if the logic looks wrong, in that case just add a comment
+            ]]
+    },
     {
       provider = "googleai",
       name = "MyCodeGemini",
