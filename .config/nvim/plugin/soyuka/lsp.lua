@@ -11,7 +11,8 @@ set('n', '<C-g>', fzf_lua.live_grep, {})
 set('n', '<C-b>', fzf_lua.buffers, {})
 
 set('n', '<Leader>d', function()
-  fzf_lua.diagnostics_workspace()
+  -- fzf_lua.diagnostics_workspace()
+  fzf_lua.diagnostics_document()
 end, { desc = 'Show diagnostics' })
 
 -- 'omnifunc' is set to vim.lsp.omnifunc(), use i_CTRL-X_CTRL-O to trigger completion.
@@ -27,7 +28,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
     -- conform fallsback on lsp.buf.format
     set('n', '<Leader>f', function()
-      if nil ~= string.find(vim.bo.filetype, "php") then
+      if nil ~= string.find(vim.bo.filetype, "ts") then
+         lsp.buf.format { async = true }
+      elseif nil ~= string.find(vim.bo.filetype, "php") then
          lsp.buf.format { async = true }
       --   vim.cmd('EslintFixAll')
       else

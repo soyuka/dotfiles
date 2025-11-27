@@ -6,7 +6,7 @@ local diagnostic = vim.diagnostic
 -- keep register when pasting (https://vi.stackexchange.com/a/39907)
 set("x", "p", "P", { silent = true })
 set('n', ';', ':')
-set('n', ',', ';')
+set({ 'n', 'v' }, ',', ';')
 set('n', 'Y', 'yy')
 set('n', '<Leader>p', ':set paste!<CR>')
 set('x', '<Leader>y', 'y:call system("wl-copy", @")<CR>')

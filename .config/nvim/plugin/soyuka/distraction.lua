@@ -8,6 +8,7 @@ NoDistraction.enable = function()
     set laststatus=0
     set noshowcmd
     set nonumber
+    set norelativenumber
     set showtabline=0
   ]])
   vim.diagnostic.config({
@@ -26,6 +27,7 @@ NoDistraction.disable = function()
     set laststatus=2
     set showcmd
     set number
+    set relativenumber
     set showtabline=2
   ]])
   vim.diagnostic.config({
