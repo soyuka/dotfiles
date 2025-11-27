@@ -19,6 +19,7 @@ antigen bundle zsh-users/zsh-completions
 antigen theme $ZSH_CONFIG soyuka
 antigen apply
 
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 zstyle :compinstall filename '/home/soyuka/.zshrc'
 plugins=(zsh-completions colored-man-pages)
 autoload -U compinit
@@ -27,7 +28,6 @@ compinit
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 eval "$(zoxide init zsh)"
 # corepack enable
-# source /usr/share/nvm/init-nvm.sh
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/home/soyuka/.lmstudio/bin"
