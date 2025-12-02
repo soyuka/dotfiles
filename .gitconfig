@@ -18,3 +18,5 @@
 	driver = true
 [merge "union"]
 	driver = true
+[rerere]
+	enabled = true

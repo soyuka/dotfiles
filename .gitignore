@@ -29,3 +29,4 @@
 !.zshrc
 .config/systemd/user/borgmatic.service.d/override.conf
 .secret_env
+GEMINI.md

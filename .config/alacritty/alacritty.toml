@@ -1,4 +1,4 @@
-general.import = ["/home/soyuka/.config/alacritty/color.white.toml"]
+general.import = ["/home/soyuka/.config/alacritty/color.black.toml"]
 general.live_config_reload = true
 
 [bell]
