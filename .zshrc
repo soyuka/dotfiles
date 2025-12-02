@@ -32,3 +32,6 @@ eval "$(zoxide init zsh)"
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/home/soyuka/.lmstudio/bin"
 source /etc/profile.d/google-cloud-cli.sh
+
+# Scaleway CLI autocomplete initialization.
+eval "$(scw autocomplete script shell=zsh)"

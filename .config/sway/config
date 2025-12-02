@@ -183,6 +183,8 @@ bindsym $mod+r mode "resize"
 
 include /etc/sway/config.d/*
 
+# seat * xcursor_theme Vimix-White 64
+
 exec systemctl --user import-environment
 exec dbus-update-activation-environment --all
 exec waybar

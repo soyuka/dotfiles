@@ -1,7 +1,7 @@
 export LC_ALL=en_US.UTF-8
 export LANG=fr_FR.UTF-8
-export EDITOR='vim'
-export SQITCH_EDITOR='vim'
+export EDITOR='nvim'
+export SQITCH_EDITOR='nvim'
 export ANDROID_HOME="${HOME}/Android/Sdk"
 # rust, andoid, composer global and local, then local node
 export PATH="$PATH:$HOME/tesseract:$HOME/.cargo/bin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$HOME/.composer/vendor/bin:vendor/bin:node_modules/.bin:$HOME/.local/bin:$HOME/.yarn/bin:$HOME/go/bin:$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:/usr/lib/emsdk/upstream/emscripten:$HOME/.local/share/gem/ruby/3.0.0/bin:$HOME/.vim/plugged/phpactor/bin"
@@ -32,5 +32,5 @@ if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
   exec sway
 fi
 
-source .secret_env
-
+source /home/soyuka/.secret_env
+# export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:$LD_LIBRARY_PATH

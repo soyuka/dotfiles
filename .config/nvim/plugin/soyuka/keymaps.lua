@@ -19,6 +19,7 @@ set('n', '<Leader>q', ':Bdelete<CR>')
 
 set('n', '<Leader>n', ':NvimTreeToggle<CR>')
 set('n', '<Leader>c', ':NvimTreeFindFile<CR>')
+set('n', '<Leader>v', ':BufferLineTogglePin<CR>')
 -- set('n', '<Leader>c', function()
 --   local current_buffer_dir = vim.fn.expand('%:p:h')
 --   if current_buffer_dir == '' then
