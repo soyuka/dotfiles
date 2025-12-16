@@ -33,4 +33,5 @@ set({ 'n', 'v'}, '<Leader>g', ':\'<,\'>GpCodeWithContext<CR>')
 set('n', '[d', diagnostic.goto_prev)
 set('n', ']d', diagnostic.goto_next)
 set('n', '<Leader>d', diagnostic.setloclist)
-
+set({ 'n', 'v' }, '<Leader>A', ':CodeCompanionChat Toggle<cr>', { desc = "AI: Toggle Chat" })
+set({ 'n', 'v' }, '<Leader>aa', ':CodeCompanion', { desc = "AI: Actions/Inline" })

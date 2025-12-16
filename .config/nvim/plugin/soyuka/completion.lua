@@ -53,7 +53,7 @@ cmp.setup({
     fetching_timeout = 2000
   },
 	sources = cmp.config.sources({
-    { name = 'minuet' },
+    -- { name = 'minuet' },
 		{ name = 'luasnip' },
 		{ name = 'nvim_lsp' },
     -- { name = 'git' },

@@ -124,7 +124,68 @@ require("lazy").setup({
     end
   },
   { 'numToStr/Comment.nvim',     config = function() require('Comment').setup() end },
-  { 'nvim-lualine/lualine.nvim', config = function() require('lualine').setup() end },
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons', 'olimorris/codecompanion.nvim' },
+    config = function()
+      local system_status = { processing = false }
+
+      -- Create an autocommand group to listen for CodeCompanion events
+      local group = vim.api.nvim_create_augroup("CodeCompanionHooks", {})
+
+      vim.api.nvim_create_autocmd({ "User" }, {
+        pattern = "CodeCompanionRequest*",
+        group = group,
+        callback = function(request)
+          if request.match == "CodeCompanionRequestStarted" then
+            system_status.processing = true
+          elseif request.match == "CodeCompanionRequestFinished" then
+            system_status.processing = false
+          end
+          -- Force redraw of statusline to show the change immediately
+          require("lualine").refresh()
+        end,
+      })
+
+      -- The actual component function
+      local function codecompanion_spinner()
+        if not system_status.processing then return nil end
+        local spinner_symbols = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+        local spinner_index = math.floor(vim.loop.now() / 100) % #spinner_symbols + 1
+        return " " .. spinner_symbols[spinner_index] .. " Processing..."
+      end
+
+      -- Condition: Return false if the current buffer is a CodeCompanion chat
+      local function not_in_chat()
+        return vim.bo.filetype ~= "codecompanion"
+      end
+
+      require('lualine').setup({
+        sections = {
+          -- Standard Mode display (keep this)
+          lualine_a = { 'mode' },
+
+          -- Hide branch, diff, and diagnostics when in Chat
+          lualine_b = {
+            { 'branch', cond = not_in_chat },
+            { 'diff', cond = not_in_chat },
+            { 'diagnostics', cond = not_in_chat }
+          },
+
+          -- Keep filename in the middle
+          lualine_c = { 'filename' },
+
+          -- Show spinner always, but hide encoding/format in chat to save space
+          lualine_x = {
+            codecompanion_spinner,
+            { 'encoding', cond = not_in_chat },
+            { 'fileformat', cond = not_in_chat },
+            'filetype'
+          },
+        }
+      })
+    end
+  },
   {
     'stevearc/oil.nvim',
     ---@module 'oil'
@@ -178,26 +239,26 @@ require("lazy").setup({
             cmd = { "deno", "run", "--allow-all", "npm:typescript-language-server", "--", "--stdio" },
             filetypes = { 'ts' }
           })
-          
+
           -- lspconfig.postgres_lsp.setup {
           --   cmd = { "postgres_lsp", "lsp-proxy", "--config-path=/home/soyuka/work/owen/owen-union-sociale-des-scop-et-scic" }
           -- }
-          
+
           vim.lsp.config('intelephense', {
             cmd = { "deno", "run", "--allow-all", "npm:intelephense", "--", "--stdio" },
             filetypes = { 'php' }
           })
-          
+
           vim.lsp.config('sqll', {
             cmd = { "deno", "run", "--allow-all", "npm:sql-language-server", "--", "--stdio" },
             filetypes = { 'sql' }
           })
-          
+
           vim.lsp.config('jsonls', {
             cmd = { "deno", "run", "--allow-all", "npm:vscode-json-languageserver", "--", "--stdio" },
             filetypes = { 'json', 'jsonc', 'json5' }
           })
-          
+
           vim.lsp.config('yamlls', {
             cmd = { "deno", "run", "--allow-all", "npm:yaml-language-server", "--", "--stdio" },
             filetypes = { 'yaml', 'yml' }
@@ -330,15 +391,202 @@ require("lazy").setup({
     end
   },
   {
-    "robitx/gp.nvim",
+    "ravitemer/mcphub.nvim",
+    build = "npm install -g mcp-hub@latest",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
     config = function()
-      require("gp").setup(require('./prompt-config'))
-    end,
+      require("mcphub").setup()
+    end
   },
+  {
+    "olimorris/codecompanion.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+      "ibhagwan/fzf-lua",
+      "Davidyz/VectorCode",
+      "ravitemer/codecompanion-history.nvim",
+      "ravitemer/mcphub.nvim",
+    },
+    config = true,
+    opts = {
+      display = {
+        chat ={
+          window = {
+            layout = "buffer"
+          },
+        }
+      },
+      strategies = {
+        chat = {
+          adapter = "copilot",
+          tools = {
+            opts = {
+              default_tools = {
+                -- "vectorcode_toolbox",
+                "mcp",
+                "files",
+                "github",
+                "time",
+                "neovim",
+                "vectorcode",
+                -- "cmd_runner",
+              },
+            },
+          },
+          slash_commands = {
+            ["file"] = {
+              opts = {
+                provider = "fzf_lua",
+                contains_code = true,
+              },
+              keymaps = {
+                modes = {
+                  n = "<C-p>",
+                  i = "<C-p>",
+                },
+              },
+            },
+            ["buffer"] = {
+              opts = {
+                provider = "fzf_lua",
+                contains_code = true,
+              },
+              keymaps = {
+                modes = {
+                  n = "<C-b>",
+                  i = "<C-b>", 
+                },
+              },
+            },
+            ["symbols"] = {
+              opts = {
+                provider = "fzf_lua",
+              },
+            },
+          },
+        },
+        inline = {
+          adapter = "copilot",
+        },
+        agent = {
+          adapter = "copilot",
+        },
+      },
+      extensions = {
+        mcphub = {
+          callback = "mcphub.extensions.codecompanion",
+          opts = {
+            -- MCP Tools 
+            make_tools = true,              -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
+            show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
+            add_mcp_prefix_to_tool_names = false, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
+            show_result_in_chat = true,      -- Show tool results directly in chat buffer
+            format_tool = nil,               -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
+              -- MCP Resources
+              make_vars = true,                -- Convert MCP resources to #variables for prompts
+              -- MCP Prompts 
+              make_slash_commands = true,      -- Add MCP prompts as /slash commands
+            }
+          },
+          history = {
+          enabled = true,
+          opts = {
+            picker = "fzf-lua",
+          }
+        },
+        vectorcode = {
+          opts = {
+            tool_group = {
+              enabled = true,
+              collapse = true,
+            },
+            tool_opts = {
+              query = {
+                max_num = { chunk = 10, document = 5 },
+              },
+            },
+          },
+        },
+      },
+      adapters = {
+        http = {
+          gemini = function()
+            return require("codecompanion.adapters").extend("gemini", {
+              env = {
+                api_key = "GEMINI_API_KEY",
+              },
+              schema = {
+                model = {
+                  default = "gemini-2.5-flash",
+                },
+              },
+            })
+          end,
+          mistral = function()
+            return require("codecompanion.adapters").extend("mistral", {
+              env = {
+                api_key = "MISTRAL_API_KEY",
+              },
+              schema = {
+                model = {
+                  default = "codestral-latest",
+                },
+              },
+            })
+          end,
+          anthropic = function()
+            return require("codecompanion.adapters").extend("anthropic", {
+              env = {
+                api_key = "ANTHROPIC_API_KEY",
+              },
+            })
+          end,
+          copilot = function()
+            return require("codecompanion.adapters").extend("copilot", {
+              schema = {
+                model = {
+                  default = "claude-haiku-4.5",
+                },
+              },
+            })
+          end,
+          openai = function()
+            return require("codecompanion.adapters").extend("openai", {
+              env = {
+                api_key = "OPENAI_API_KEY",
+              },
+            })
+          end,
+        },
+        acp = {
+          gemini_cli = function()
+            return require("codecompanion.adapters").extend("gemini_cli", {
+              defaults = {
+                auth_method = "oauth-personal",
+              },
+            })
+          end,
+        },
+      },
+    },
+  },	
   {
     "mfussenegger/nvim-dap",
   },
-  { 
+  {
+    "echasnovski/mini.diff",
+    config = function()
+      local diff = require("mini.diff")
+      diff.setup({
+        -- Disabled by default
+        source = diff.gen_source.none(),
+      })
+    end,
+  },
+  {
     "rcarriga/nvim-dap-ui", dependencies = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"},
     config = function()
       require('dapui').setup()
@@ -364,121 +612,11 @@ require("lazy").setup({
       --   }
       -- })
     end
+  },
+  {
+    "github/copilot.vim",
+    config = function ()
+      vim.g.copilot_enabled = false
+    end
   }
-
-  -- {
-  --   "Davidyz/VectorCode",
-  --   version = "*",
-  --   build = "pipx upgrade vectorcode", -- optional but recommended if you set `version = "*"`
-  --   dependencies = { "nvim-lua/plenary.nvim" },
-  --   cmd = "VectorCode",
-  --   config = function()
-  --     require("vectorcode").setup({
-  --        async_backend = "lsp", -- or "lsp"
-  --       -- number of retrieved documents
-  --       -- n_query = 1,
-  --     })
-  --     local vectorcode_cacher = require("vectorcode.config").get_cacher_backend()
-  --     vim.api.nvim_create_autocmd({ 'BufReadPre' }, {
-  --       pattern = { "*.php", "*.sql", "*.js", "*.ts", "*.md" },
-  --       callback = function(args)
-  --         if not vectorcode_cacher.buf_is_registered(args.buf) then
-  --           vectorcode_cacher.register_buffer(
-  --             args.buf,
-  --             {
-  --               n_query = 1,
-  --               exclude_this = false,
-  --
-  --             }
-  --           )
-  --         end
-  --       end
-  --     })
-  --
-  --     vim.api.nvim_create_autocmd({ 'BufDelete' }, {
-  --       pattern = { "*.php", "*.sql", "*.js", "*.ts", "*.md" },
-  --       callback = function(args)
-  --         if vectorcode_cacher.buf_is_registered(args.buf) then
-  --           vectorcode_cacher.deregister_buffer(
-  --             args.buf
-  --           )
-  --         end
-  --       end,
-  --     })
-  --   end
-  -- },
-  -- {
-  --   "robitx/gp.nvim",
-  --   config = function()
-  --     require("gp").setup(require('./prompt-config'))
-  --   end,
-  -- },
-  -- {
-  --   'milanglacier/minuet-ai.nvim',
-  --   config = function()
-  --     local vectorcode_cacher = require("vectorcode.config").get_cacher_backend()
-  --
-  --     require('minuet').setup {
-  --       -- after_cursor_filter_length = 30,
-  --       -- n_completions = 1, -- recommend for local model for resource saving
-  --       provider = 'gemini',
-  --       -- after_cursor_filter_length = 30,
-  --       notify = 'debug',
-  --       provider_options = {
-  --         gemini = {
-  --           model = 'gemini-2.0-flash',
-  --           api_key = 'GEMINI_API_KEY',
-  --           system = {
-  --             template = '{{{prompt}}}\n{{{guidelines}}}\n{{{n_completion_template}}}\n{{{repo_context}}}',
-  --             -- repo_context = [[9. Additional context from other files in the repository will be enclosed in <repo_context> tags. Each file will be separated by <file_separator> tags, containing its relative path and content.]],
-  --           },
-  --           chat_input = {
-  --             template = '{{{repo_context}}}\n{{{language}}}\n{{{tab}}}\n<contextBeforeCursor>\n{{{context_before_cursor}}}<cursorPosition>\n<contextAfterCursor>\n{{{context_after_cursor}}}',
-  --             -- repo_context = function(_, _, _)
-  --             --   local prompt_message = ''
-  --             --   local cache_result = vectorcode_cacher.query_from_cache()
-  --             --
-  --             --   for _, file in ipairs(cache_result) do
-  --             --     prompt_message = prompt_message
-  --             --         .. '<file_separator>'
-  --             --         .. file.path
-  --             --         .. '\n'
-  --             --         .. file.document
-  --             --   end
-  --             --   if prompt_message ~= '' then
-  --             --     prompt_message = '<repo_context>\n' .. prompt_message .. '\n</repo_context>'
-  --             --   end
-  --             --   return prompt_message
-  --             -- end,
-  --           },
-  --         },
-  --         openai_fim_compatible = {
-  --           model = 'qwen2.5-coder-7b-instruct',
-  --           end_point = 'http://127.0.0.1:1234/v1/completions',
-  --           api_key = function() return 'dummy' end,
-  --           stream = true,
-  --           template = {
-  --             prompt = function(pref, suff)
-  --               local prompt_message = ""
-  --               local cache_result = vectorcode_cacher.query_from_cache(0)
-  --               for _, file in ipairs(cache_result) do
-  --                 prompt_message = prompt_message .. "<|file_sep|>" .. file.path .. "\n" .. file.document
-  --               end
-  --               return prompt_message
-  --                   .. "<|fim_prefix|>"
-  --                   .. pref
-  --                   .. "<|fim_suffix|>"
-  --                   .. suff
-  --                   .. "<|fim_middle|>"
-  --             end,
-  --             suffix = false,
-  --           },
-  --         }
-  --       }
-  --     }
-  --   end,
-  --   dependencies = {
-  --     'nvim-lua/plenary.nvim'
-  --   }
-  -- },
 })
