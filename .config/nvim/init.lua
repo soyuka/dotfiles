@@ -75,6 +75,23 @@ require("lazy").setup({
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
       -- load the colorscheme here
+      require("onedarkpro").setup({
+        colors = {
+          onelight = {
+            bg = "#ffffff",
+            fg = "#2c2c2c",
+            comment = "#6a737d",
+            selection = "#c8d3e6",
+            red = "#c91b1b",
+            orange = "#b35900",
+            yellow = "#a07000",
+            green = "#117a0a",
+            blue = "#0a6fa6",
+            purple = "#7b3fb8",
+            cyan = "#1a8a96",
+          },
+        },
+      })
       if vim.o.background == "light" then
         vim.cmd("colorscheme onelight")
       else
