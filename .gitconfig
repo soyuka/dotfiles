@@ -20,3 +20,14 @@
 	driver = true
 [rerere]
 	enabled = true
+[credential]
+	helper = libsecret
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+
+# Machine-local overrides (work paths, per-host tweaks). Untracked; missing is fine.
+[include]
+	path = .gitconfig.local
