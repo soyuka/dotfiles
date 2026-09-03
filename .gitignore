@@ -44,3 +44,8 @@
 .config/systemd/user/borgmatic.service.d/override.conf
 .secret_env
 GEMINI.md
+
+# Ad-hoc backups (foo.bak, foo.bak-20260730-230455). Must stay last: whitelist
+# entries above re-include whole directories, and last match wins.
+*.bak
+*.bak-*
