@@ -29,7 +29,7 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 # startx on the 1st vt
 if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
   # exec startx
-  exec sway
+  exec sway --unsupported-gpu
 fi
 
 source /home/soyuka/.secret_env

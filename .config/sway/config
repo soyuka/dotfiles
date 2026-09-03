@@ -3,6 +3,11 @@
 # Read `man 5 sway` for a complete reference.
 # Tray applets are started here, see user's systemd configuration for other applications.
 
+# sway is started with `--unsupported-gpu` from the exec line in ~/.zprofile, not from here.
+# The WLR_NO_HARDWARE_CURSORS / WLR_DRM_NO_MODIFIERS env workarounds this comment used to point at
+# were rolled back — see "Things tried during diagnosis that were reverted" in
+# ~/linux-bug-reminder.md.
+
 ### Variables
 #
 # Logo key. Use Mod1 for Alt.
