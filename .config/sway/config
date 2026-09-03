@@ -197,7 +197,7 @@ include /etc/sway/config.d/*
 
 exec systemctl --user import-environment
 exec dbus-update-activation-environment --all
-exec waybar
+exec systemctl --user start sway-session.target
 exec udiskie --appindicator -t
 exec blueman-applet
 # exec systemctl --user start wpa_gui
