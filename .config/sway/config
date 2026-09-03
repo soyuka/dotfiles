@@ -21,7 +21,10 @@ set $up k
 set $right l
 
 # Your preferred terminal emulator
-set $term alacritty
+# foot instead of alacritty since 2026-07-30: alacritty supports no image protocol (no sixel, no
+# kitty graphics), foot does sixel and tmux relays it. NB: foot takes its command as plain
+# arguments — it has NO `-e` flag, unlike alacritty (see the $mod+Return binding below).
+set $term foot
 
 ### Output configuration
 
@@ -65,7 +68,9 @@ input 1133:16495:Logitech_MX_Ergo {
 #
 # Basics:
 #
-bindsym $mod+Return exec $term -e ~/.config/sway/scripts/tmux.sh
+# No `-e`: that was alacritty syntax. foot runs `foot [OPTIONS...] command [ARGS...]`, so `-e` would
+# be parsed as an unknown flag and the terminal would never open.
+bindsym $mod+Return exec $term ~/.config/sway/scripts/tmux.sh
 bindsym $mod+Shift+Return exec $term
 
 bindsym $mod+Shift+q kill
