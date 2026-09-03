@@ -438,7 +438,7 @@ require("lazy").setup({
       },
       strategies = {
         chat = {
-          adapter = "copilot",
+          adapter = "gemini",
           tools = {
             opts = {
               default_tools = {
@@ -486,10 +486,10 @@ require("lazy").setup({
           },
         },
         inline = {
-          adapter = "copilot",
+          adapter = "mistral",
         },
         agent = {
-          adapter = "copilot",
+          adapter = "mistral",
         },
       },
       extensions = {
