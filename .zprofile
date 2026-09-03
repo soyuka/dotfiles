@@ -18,6 +18,7 @@ export MOZ_ENABLE_WAYLAND=1
 export MANPAGER="less -Rf" issues with colors
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_TYPE=wayland
+export GOOSE_OAUTH_CALLBACK_PORT=3118
 
 export GPG_TTY=$(tty)
 # PHPStorm needs that on wayland 
@@ -34,3 +35,4 @@ fi
 
 source /home/soyuka/.secret_env
 # export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:$LD_LIBRARY_PATH
+export CHROME_PATH=/usr/bin/chromium

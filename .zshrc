@@ -35,3 +35,23 @@ source /etc/profile.d/google-cloud-cli.sh
 
 # Scaleway CLI autocomplete initialization.
 eval "$(scw autocomplete script shell=zsh)"
+
+
+# bun completions
+[ -s "/home/soyuka/.bun/_bun" ] && source "/home/soyuka/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Piper TTS — speak text via speakers
+# Override voice with: SAY_VOICE=en_US-amy-medium say "..."
+say() {
+  local voice="${SAY_VOICE:-en_US-ljspeech-high}"
+  echo "$*" | piper-tts --quiet \
+    --model "$HOME/.local/share/piper-voices/${voice}.onnx" \
+    --output-raw 2>/dev/null \
+    | aplay -q -r 22050 -f S16_LE -t raw -
+}
+
+export GITHUB_PERSONAL_ACCESS_TOKEN=$(gh auth token)
