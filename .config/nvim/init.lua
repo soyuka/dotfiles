@@ -630,10 +630,10 @@ require("lazy").setup({
       -- })
     end
   },
-  {
-    "github/copilot.vim",
-    config = function ()
-      vim.g.copilot_enabled = false
-    end
-  }
+  -- {
+  --   "Exafunction/windsurf.vim",
+  --   config = function ()
+  --     -- vim.g.copilot_enabled = false
+  --   end
+  -- }
 })
