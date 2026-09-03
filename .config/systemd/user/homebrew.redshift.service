@@ -1,0 +1,12 @@
+[Unit]
+Description=Homebrew generated unit for redshift
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Type=simple
+ExecStart="/home/linuxbrew/.linuxbrew/opt/redshift/bin/redshift"
+Restart=on-failure
+StandardOutput=append:/dev/null
+StandardError=append:/dev/null
