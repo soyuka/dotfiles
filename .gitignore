@@ -18,7 +18,20 @@
 .config/zsh/soyuka.zsh-theme.antigen-compat
 !.gitconfig
 !.github
+# .local needs the same three-step form as .config above: /* excludes
+# .local, and git cannot re-include a path whose parent dir is excluded —
+# so the bare `!.local/bin/dnm` below never worked (verified 2026-09-03:
+# `git ls-files .local/` was empty).
+!.local
+.local/*
+!.local/bin
+.local/bin/*
 !.local/bin/dnm
+# tmux agent strip (status line 1) + its fzf switcher; ~/.tmux.conf calls all three
+!.local/bin/claude-tmux-state
+!.local/bin/claude-agent-switcher
+!.local/bin/tmux-agent-budget
+!.local/bin/tests
 !.tmux.conf
 !.vimrc
 .vim/*

@@ -1,0 +1,59 @@
+#!/bin/sh
+# Claude Code hook: mirror hook_event_name into a per-pane tmux user option
+# (@agent_state) so the status-bar agent strip (~/.tmux.conf, added
+# 2026-09-02) can render live per-pane state without a subprocess in the tmux
+# format itself (#() is async-cached and renders blank on first eval, so the
+# format reads @agent_state directly instead of shelling out).
+#
+# Runs 3-5x per turn per agent across ~26 sessions/day: stay POSIX sh, no
+# unnecessary subprocesses, and on PermissionRequest never write to
+# stdout/stderr or exit nonzero — that could interfere with the permission
+# decision.
+#
+# CLAUDE_TMUX_SOCKET is a testability seam only (see tests/claude-tmux-state.test.sh).
+# Unset in production: plain `tmux` then resolves the socket from $TMUX,
+# exactly like every other hook in ~/.claude/hooks/.
+
+if [ -z "${TMUX_PANE:-}" ]; then
+  cat >/dev/null
+  exit 0
+fi
+
+if [ -n "${CLAUDE_TMUX_SOCKET:-}" ]; then
+  tmux() { command tmux -L "$CLAUDE_TMUX_SOCKET" "$@"; }
+fi
+
+payload=$(cat)
+event=$(printf '%s' "$payload" | jq -r '.hook_event_name // empty' 2>/dev/null)
+
+case "$event" in
+  SessionStart)      state=idle ;;
+  UserPromptSubmit)  state=running ;;
+  PermissionRequest) state=perm ;;
+  Notification)
+    message=$(printf '%s' "$payload" | jq -r '.message // empty' 2>/dev/null)
+    case "$message" in
+      *"waiting for your input"*) state=done ;;
+      *) state=perm ;;
+    esac
+    ;;
+  Stop) state=done ;;
+  SessionEnd)
+    tmux set-option -p -t "$TMUX_PANE" -u @agent_state >/dev/null 2>&1
+    tmux set-option -p -t "$TMUX_PANE" -u @agent_since >/dev/null 2>&1
+    # Agent count changed -> the strip's per-entry title budget must be
+    # recomputed. Only SessionStart/SessionEnd change the count, so the
+    # other (far more frequent) events below deliberately skip this.
+    "$(dirname "$0")/tmux-agent-budget" >/dev/null 2>&1 || true
+    exit 0
+    ;;
+  *) exit 0 ;;
+esac
+
+tmux set-option -p -t "$TMUX_PANE" @agent_state "$state" >/dev/null 2>&1
+tmux set-option -p -t "$TMUX_PANE" @agent_since "$(date +%s)" >/dev/null 2>&1
+
+if [ "$event" = SessionStart ]; then
+  "$(dirname "$0")/tmux-agent-budget" >/dev/null 2>&1 || true
+fi
+exit 0

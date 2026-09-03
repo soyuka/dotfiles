@@ -1,0 +1,274 @@
+#!/usr/bin/env bash
+# fzf popup: jump straight to any live Claude Code pane, across every
+# session/window. Bound to `prefix g` (~/.tmux.conf, Agent Strip block).
+# Read-only against tmux state — @agent_state / the pane->transcript map
+# are written elsewhere (~/.local/bin/claude-tmux-state, ~/.claude/hooks/
+# tmux-pane-session.sh); this script only reads them.
+#
+# CLAUDE_TMUX_SOCKET is the same testability seam as claude-tmux-state:
+# unset in production, plain `tmux` resolves via $TMUX like any popup
+# command tmux itself launches.
+set -uo pipefail
+
+if [ -n "${CLAUDE_TMUX_SOCKET:-}" ]; then
+  tmux() { command tmux -L "$CLAUDE_TMUX_SOCKET" "$@"; }
+fi
+
+# Absolute path to this script, so the fzf --preview command (run in a
+# subshell fzf spawns, with its own unrelated $0) can shell back into the
+# same file via the --preview-pane internal flag below.
+SELF="$(readlink -f "$0" 2>/dev/null || printf '%s' "$0")"
+
+# CLAUDE_TMUX_MAP_DIR is a testability seam (same spirit as
+# CLAUDE_TMUX_SOCKET): unset in production, defaults to the real map dir
+# claude-tmux-state/tmux-pane-session.sh write into.
+MAP_DIR="${CLAUDE_TMUX_MAP_DIR:-$HOME/.local/state/claude-tmux-panes}"
+
+glyph_for() {
+  case "$1" in
+    perm) printf '!' ;;
+    done) printf '\xe2\x97\x8f' ;; # ●
+    running) printf '\xe2\x80\xa6' ;; # …
+    *) printf '\xe2\x97\x8b' ;; # ○
+  esac
+}
+
+# Word form of the same @agent_state mapping glyph_for uses. Kept as a
+# separate function (rather than folded into glyph_for) so each stays a
+# single lookup — callers that only want the glyph (e.g. a future
+# narrower render) aren't forced to pay for the word too.
+word_for() {
+  case "$1" in
+    perm) printf 'needs you' ;;
+    done) printf 'done' ;;
+    running) printf 'working' ;;
+    idle) printf 'idle' ;;
+    *) printf 'standing by' ;; # empty/unset @agent_state
+  esac
+}
+
+# ANSI colour for $1, mirroring the strip palette in ~/.tmux.conf so the
+# popup and the status line agree at a glance (red=blocked on you,
+# yellow=finished, green=working, grey 244=nothing pending). Emitted
+# separately from the text so column padding is computed on VISIBLE width
+# only — %-*s counts escape bytes, so colouring before padding would
+# silently skew every column to its right. fzf renders these via --ansi.
+ansi_for() {
+  case "$1" in
+    perm)    printf '\033[1;31m' ;;
+    done)    printf '\033[33m' ;;
+    running) printf '\033[32m' ;;
+    *)       printf '\033[38;5;244m' ;; # idle + empty/unset
+  esac
+}
+ANSI_RESET="$(printf '\033[0m')"
+
+status_for() {
+  printf '%s %s' "$(glyph_for "$1")" "$(word_for "$1")"
+}
+
+# Age of pane $1 (with leading %), from its mapped transcript's mtime.
+# The map accumulates entries for long-dead panes; only live pane ids ever
+# reach this function (caller already filtered against `tmux list-panes`),
+# so that staleness is handled by construction, not by scanning the map.
+age_for() {
+  local pane map transcript mtime now age
+  pane="${1#%}"
+  map="$MAP_DIR/$pane"
+  [ -f "$map" ] || { printf -- '-'; return; }
+  transcript="$(cut -f2 "$map" 2>/dev/null)"
+  if [ -z "$transcript" ] || [ ! -f "$transcript" ]; then
+    printf -- '-'
+    return
+  fi
+  mtime="$(stat -c %Y "$transcript" 2>/dev/null)" || { printf -- '-'; return; }
+  now="$(date +%s)"
+  age=$((now - mtime))
+  if [ "$age" -lt 3600 ]; then
+    printf '%dm' "$((age / 60))"
+  else
+    printf '%dh%02d' "$((age / 3600))" "$(((age % 3600) / 60))"
+  fi
+}
+
+# Short (8-char) session id of pane $1 (with leading %), from field 1 of
+# its map entry. Mirrors age_for's "missing map entry -> '-'" behaviour so
+# the two columns degrade the same way for a pane the map hasn't caught
+# up with yet.
+session_id_for() {
+  local pane map sid
+  pane="${1#%}"
+  map="$MAP_DIR/$pane"
+  [ -f "$map" ] || { printf -- '-'; return; }
+  sid="$(cut -f1 "$map" 2>/dev/null)"
+  if [ -z "$sid" ]; then
+    printf -- '-'
+    return
+  fi
+  printf '%s' "${sid:0:8}"
+}
+
+# fzf --preview body for pane $1 (with leading %): what this agent is
+# actually doing right now. Re-resolves everything from the pane id alone
+# (map entry, live tmux pane state) since fzf invokes this as a fresh
+# `$SELF --preview-pane <pane_id>` subprocess, not a function in this
+# process.
+preview_for() {
+  local pane_id="$1" pane map sid transcript target state
+  pane="${pane_id#%}"
+  map="$MAP_DIR/$pane"
+  if [ -f "$map" ]; then
+    sid="$(cut -f1 "$map" 2>/dev/null)"
+    transcript="$(cut -f2 "$map" 2>/dev/null)"
+  fi
+  # A dead pane id still makes tmux emit the format's literal separators
+  # (":."), which is non-empty and so defeats the ${target:--} fallback below.
+  # Only trust the lookup if the pane actually exists.
+  if tmux has-session -t "$pane_id" 2>/dev/null && \
+     tmux display -p -t "$pane_id" '#{pane_id}' >/dev/null 2>&1; then
+    target="$(tmux display -p -t "$pane_id" '#{session_name}:#{window_index}.#{pane_index}' 2>/dev/null)"
+  fi
+  state="$(tmux display -p -t "$pane_id" '#{@agent_state}' 2>/dev/null)"
+
+  echo "Session:  ${sid:--}"
+  echo "Pane:     ${target:--}  [${state:-unknown}]"
+  if [ -n "${sid:-}" ]; then
+    echo
+    echo "Resume:   claude --resume $sid"
+  fi
+  echo
+  echo "Transcript: ${transcript:--}"
+  echo
+  echo "--- Last activity ---"
+
+  if [ -z "${transcript:-}" ] || [ ! -f "$transcript" ]; then
+    echo "(no recent activity parsed)"
+    return
+  fi
+
+  # Tail only: transcripts can run to thousands of lines. Malformed/huge
+  # lines are expected across Claude Code versions, so every stage is
+  # defensive: `jq -R 'fromjson? // empty'` drops any line that isn't
+  # valid JSON instead of aborting the whole pipeline the way a plain
+  # multi-document `jq` parse would on the first bad line.
+  local tail_json last_text last_tool
+  tail_json="$(tail -n 50 "$transcript" 2>/dev/null | jq -R 'fromjson? // empty' 2>/dev/null)"
+  last_text="$(printf '%s' "$tail_json" | jq -s -r \
+    '[.[] | select(.type=="assistant") | .message.content[]? | select(.type=="text") | .text] | last // empty' \
+    2>/dev/null)"
+  last_tool="$(printf '%s' "$tail_json" | jq -s -r \
+    '[.[] | select(.type=="assistant") | .message.content[]? | select(.type=="tool_use") | .name] | last // empty' \
+    2>/dev/null)"
+
+  local printed=0
+  if [ -n "$last_text" ]; then
+    echo "Last message:"
+    printf '%s\n' "$last_text" | head -n 6
+    printed=1
+  fi
+  if [ -n "$last_tool" ]; then
+    echo "Last tool used: $last_tool"
+    printed=1
+  fi
+  [ "$printed" -eq 1 ] || echo "(no recent activity parsed)"
+}
+
+# Internal flag, not part of normal usage: fzf's --preview shells back
+# into this same file (see $SELF above) rather than exporting a function
+# into fzf's preview subshell, per the "one debuggable file" tradeoff.
+# Safe to invoke directly too — e.g. `claude-agent-switcher --preview-pane %14`
+# for debugging the preview in isolation.
+if [ "${1:-}" = "--preview-pane" ]; then
+  preview_for "${2:-}"
+  exit 0
+fi
+
+# Field separator is \x1f (Unit Separator), NOT a tab: bash's `read` treats
+# tab/space/newline as "IFS whitespace" and collapses consecutive delimiters,
+# which silently swallows an empty field (e.g. a pane with no @agent_state
+# yet) and shifts every later column left by one. \x1f is not IFS whitespace
+# so empty fields are preserved. (Verified 2026-09-02 on the isolated
+# teststrip server: with a tab delimiter, an idle pane's empty state field
+# merged into pane_current_command and the title vanished entirely.)
+rows="$(tmux list-panes -a -F $'#{pane_id}\x1f#{session_name}\x1f#{window_index}\x1f#{pane_index}\x1f#{@agent_state}\x1f#{pane_current_command}\x1f#{pane_title}' 2>/dev/null)"
+
+# Collect matching panes first (to compute aligned column widths), then print.
+pane_ids=() win_targets=() disp_targets=() ages=() glyphs=() words=() ansis=() sids=() titles=()
+while IFS=$'\x1f' read -r pane_id sess win idx state cmd title; do
+  [ -n "$pane_id" ] || continue
+  case "$cmd" in
+    claude*) ;;
+    *) continue ;;
+  esac
+  pane_ids+=("$pane_id")
+  win_targets+=("$sess:$win")
+  disp_targets+=("$sess:$win.$idx")
+  ages+=("$(age_for "$pane_id")")
+  glyphs+=("$(glyph_for "$state")")
+  words+=("$(word_for "$state")")
+  ansis+=("$(ansi_for "$state")")
+  sids+=("$(session_id_for "$pane_id")")
+  titles+=("${title#✳ }")
+done <<<"$rows"
+
+count="${#pane_ids[@]}"
+if [ "$count" -eq 0 ]; then
+  echo "No live Claude Code panes found."
+  exit 0
+fi
+
+target_w=0
+age_w=0
+status_w=0
+sid_w=0
+i=0
+while [ "$i" -lt "$count" ]; do
+  [ "${#disp_targets[$i]}" -gt "$target_w" ] && target_w="${#disp_targets[$i]}"
+  [ "${#ages[$i]}" -gt "$age_w" ] && age_w="${#ages[$i]}"
+  # Width is measured on the WORD only, never on glyph+word: the glyphs
+  # (●…○) are 3 UTF-8 bytes but 1 display column, and both ${#var} and
+  # printf %-*s count bytes under a C locale — padding the combined string
+  # skews every column to its right by 2 per multibyte glyph. Words are
+  # pure ASCII, so byte width == display width and the glyph, always
+  # exactly one column, is prepended unpadded.
+  [ "${#words[$i]}" -gt "$status_w" ] && status_w="${#words[$i]}"
+  [ "${#sids[$i]}" -gt "$sid_w" ] && sid_w="${#sids[$i]}"
+  i=$((i + 1))
+done
+
+menu=""
+i=0
+while [ "$i" -lt "$count" ]; do
+  line="$(printf '%s\t%-*s  %-*s  %s%s %-*s%s  %-*s  %s' \
+    "${pane_ids[$i]}" "$target_w" "${disp_targets[$i]}" "$age_w" "${ages[$i]}" \
+    "${ansis[$i]}" "${glyphs[$i]}" "$status_w" "${words[$i]}" "$ANSI_RESET" \
+    "$sid_w" "${sids[$i]}" "${titles[$i]}")"
+  menu="${menu}${line}
+"
+  i=$((i + 1))
+done
+
+# Preview window on the right: the popup is 80%w x 60%h (~.tmux.conf), so
+# rows (height) are the scarcer dimension and a `down` split would eat
+# into the list; a right split spends the more plentiful width instead
+# and still leaves the pane-id/age/status/sid columns fully readable.
+selected="$(printf '%s' "$menu" | fzf --delimiter='\t' --with-nth=2.. --ansi \
+  --preview="$SELF --preview-pane {1}" --preview-window=right,50%,wrap \
+  --prompt='claude agent> ')" || exit 0
+[ -n "$selected" ] || exit 0
+
+pane_id="${selected%%$'\t'*}"
+win_target=""
+i=0
+while [ "$i" -lt "$count" ]; do
+  if [ "${pane_ids[$i]}" = "$pane_id" ]; then
+    win_target="${win_targets[$i]}"
+    break
+  fi
+  i=$((i + 1))
+done
+
+[ -n "$win_target" ] || exit 0
+tmux select-window -t "$win_target" 2>/dev/null
+tmux select-pane -t "$pane_id" 2>/dev/null
+exit 0

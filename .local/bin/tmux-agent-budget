@@ -1,0 +1,37 @@
+#!/bin/sh
+# Recompute @agent_budget: the per-entry title width for the agent strip on
+# status line 1 (see ~/.tmux.conf).
+#
+# Why this is a script and not a format: the budget needs the number of
+# Claude panes across ALL windows, which in a pure format requires
+# #{n:#{W:#{P:...}}} — a nested pane loop. Evaluated INSIDE the strip's own
+# #{W:#{P:...}} loop, tmux's loop state is not re-entrant: the inner loop
+# leaves the outer one pointing at the last pane, so one entry renders the
+# wrong pane (verified 2026-09-03: pane %2 rendered as %5, 4 entries for 5
+# agents). Evaluated OUT here, the same expression is safe, and the strip
+# reads a plain #{@agent_budget} with no nesting.
+#
+# #{client_width} is empty when no client is attached, so window_width is
+# used instead (equal to the client width for the attached client).
+#
+# CLAUDE_TMUX_SOCKET is the same testability seam the other two scripts use:
+# unset in production, so plain `tmux` resolves the server from $TMUX.
+set -e
+if [ -n "${CLAUDE_TMUX_SOCKET:-}" ]; then
+  tmux() { command tmux -L "$CLAUDE_TMUX_SOCKET" "$@"; }
+fi
+
+n=$(tmux display -p '#{n:#{W:#{P:#{?#{m:claude*,#{pane_current_command}},x,}}}}' 2>/dev/null) || exit 0
+w=$(tmux display -p '#{window_width}' 2>/dev/null) || exit 0
+
+case "$n" in ''|*[!0-9]*) exit 0 ;; esac
+case "$w" in ''|*[!0-9]*) exit 0 ;; esac
+[ "$n" -gt 0 ] || exit 0
+
+# 4 = per-entry overhead: glyph + space + the 2-space separator after it.
+budget=$(( (w - 4) / n - 4 ))
+[ "$budget" -lt 8 ]  && budget=8
+[ "$budget" -gt 60 ] && budget=60
+
+tmux set -g @agent_budget "$budget" 2>/dev/null || true
+exit 0
