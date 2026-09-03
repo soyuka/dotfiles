@@ -1,0 +1,20 @@
+[Unit]
+Description=Relevé de maintenance K1C (lecture Moonraker, journalisation)
+Documentation=file:///home/soyuka/notes/impression_3d/docs/maintenance.md
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/soyuka/notes/impression_3d
+ExecStart=/usr/bin/python3 scripts/maintenance.py --cron
+
+# exit 1 = « un poste est dû / une alerte est active ». C'est une information, pas une panne :
+# sans ça l'unité passerait en `failed` à chaque fois qu'il y a quelque chose à signaler.
+# exit 2 (imprimante injoignable hors mode --cron) reste bien un échec.
+SuccessExitStatus=0 1
+
+# Rien à écrire ailleurs que dans le repo, et aucun accès réseau sortant hors LAN nécessaire.
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/soyuka/notes/impression_3d
+NoNewPrivileges=true

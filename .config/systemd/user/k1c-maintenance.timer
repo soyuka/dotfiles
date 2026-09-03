@@ -1,0 +1,16 @@
+[Unit]
+Description=Relevé de maintenance K1C toutes les 30 min
+Documentation=file:///home/soyuka/notes/impression_3d/docs/maintenance.md
+
+[Timer]
+# Calendrier plutôt que monotone : `Persistent=true` ne rattrape les exécutions manquées
+# qu'avec OnCalendar. Sur un poste qui dort et qui s'éteint, c'est ce qui compte.
+OnCalendar=*:0/30
+Persistent=true
+AccuracySec=1min
+# 30 min et pas 1×/jour : l'imprimante est éteinte la plupart du temps, un déclenchement
+# quotidien taperait presque toujours dans le vide. Le script est muet quand elle ne répond pas.
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target
