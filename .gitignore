@@ -49,3 +49,7 @@ GEMINI.md
 # entries above re-include whole directories, and last match wins.
 *.bak
 *.bak-*
+
+# systemctl edit / emacs lock temp files. `.#override.conf<hash>` slipped past the
+# override.conf rule above and published a live BORG_PASSPHRASE for three years.
+.#*
