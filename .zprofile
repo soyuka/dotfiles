@@ -27,12 +27,17 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 # Force Mesa3d anisotropy filter
 # export RADV_TEX_ANISO=16
 
+source /home/soyuka/.secret_env
+# export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:$LD_LIBRARY_PATH
+export CHROME_PATH=/usr/bin/chromium
+
+# Everything the sway session must inherit has to be exported ABOVE this guard: `exec`
+# replaces the shell, so nothing below it runs on the VT1 login path — which is also
+# what `systemctl --user import-environment` in the sway config copies into the systemd
+# user manager. Verified 2026-09-04: with these lines below the guard, none of them
+# reached the manager env while SWAYSOCK/WAYLAND_DISPLAY did.
 # startx on the 1st vt
 if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
   # exec startx
   exec sway --unsupported-gpu
 fi
-
-source /home/soyuka/.secret_env
-# export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib:$LD_LIBRARY_PATH
-export CHROME_PATH=/usr/bin/chromium
