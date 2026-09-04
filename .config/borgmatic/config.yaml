@@ -269,6 +269,12 @@ exclude_patterns:
 # Defaults to not set. Supports the "{credential ...}" syntax.
 # encryption_passphrase: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 
+# Read from the encrypted systemd credential declared in
+# ~/.config/systemd/user/borgmatic.service.d/override.conf. $CREDENTIALS_DIRECTORY only
+# exists inside the unit, so a bare `borgmatic` in a shell cannot resolve this — run
+# `systemctl --user start borgmatic.service` instead.
+encryption_passphrase: "{credential systemd borg_passphrase}"
+
 # Number of seconds between each checkpoint during a long-running
 # backup. See https://borgbackup.readthedocs.io/en/stable/faq.html for
 # details. Defaults to checkpoints every 1800 seconds (30 minutes).
