@@ -21,6 +21,7 @@
 !.claude
 .claude/*
 !.claude/mods
+!.claude/statusline.sh
 .claude/mods/*/.claude-plugin/types
 .claude/mods/*/tsconfig.json
 !.gitconfig
