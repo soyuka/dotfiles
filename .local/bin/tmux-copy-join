@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Args (tmux formats): pane_width selection_start_x selection_start_y selection_end_x selection_end_y
+# A break is a hard wrap (Claude Code renders with a 2-space continuation indent). It becomes a space,
+# except when the line reaches the pane width and ends inside a path/URL token: that is a mid-token cut.
+width="${1:-0}" sx="${2:-0}" sy="${3:-0}" ex="${4:-0}" ey="${5:-0}"
+if [ "$sy" -gt "$ey" ] || { [ "$sy" -eq "$ey" ] && [ "$sx" -gt "$ex" ]; }; then top="$ex"; else top="$sx"; fi
+perl -0777 -e '
+  my ($w, $top) = @ARGV;
+  local $/; my $s = <STDIN>; $s =~ s/\s+\z//;
+  my @l = split /\n/, $s, -1;
+  my $out = shift @l; my $col = $top + length $out;
+  my $para = 0;
+  for my $n (@l) {
+    if ($n =~ /^\s*\z/) { $para = 1; next }
+    my $item = $n =~ /^[ \t]*(?:[-*+]|\d+[.)])[ \t]/;
+    if ($para || $item) { $out =~ s/[ \t]+\z//; (my $t = $n) =~ s/^[ \t]+//; $out .= ($para ? "\n\n" : "\n") . $t; $para = 0; $col = length $n; next }
+    if ($out =~ /\\\z/) { $out .= "\n$n"; $col = length $n; next }
+    my $full = $w > 0 && $col >= $w - 1;
+    my $cut = $full && $out =~ m{[^\s/]*/\S*\z};
+    (my $t = $n) =~ s/^[ \t]+//;
+    $col = length $n;
+    $out =~ s/[ \t]+\z//;
+    $out .= ($cut ? "" : " ") . $t;
+  }
+  print $out;
+' "$width" "$top" | ${COPY_JOIN_SINK:-wl-copy}

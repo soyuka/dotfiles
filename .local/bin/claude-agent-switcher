@@ -91,12 +91,21 @@ age_for() {
   fi
 }
 
-# Short (8-char) session id of pane $1 (with leading %), from field 1 of
-# its map entry. Mirrors age_for's "missing map entry -> '-'" behaviour so
-# the two columns degrade the same way for a pane the map hasn't caught
-# up with yet.
-session_id_for() {
-  local pane map sid
+# CLAUDE_SESSIONS_DIR: same seam idea, defaults to Claude Code's live
+# session registry (one <pid>.json per running session, "name" is the peer
+# id ListAgents/SendMessage address it by).
+SESSIONS_DIR="${CLAUDE_SESSIONS_DIR:-$HOME/.claude/sessions}"
+
+peer_name_for_sid() {
+  [ -n "$1" ] || return
+  cat "$SESSIONS_DIR"/*.json 2>/dev/null | \
+    jq -r --arg sid "$1" 'select(.sessionId == $sid) | .name // empty' 2>/dev/null | tail -n 1
+}
+
+# Peer id of pane $1 (with leading %), falling back to the short session id
+# when the registry has no live entry for the mapped session.
+peer_for() {
+  local pane map sid name
   pane="${1#%}"
   map="$MAP_DIR/$pane"
   [ -f "$map" ] || { printf -- '-'; return; }
@@ -105,7 +114,8 @@ session_id_for() {
     printf -- '-'
     return
   fi
-  printf '%s' "${sid:0:8}"
+  name="$(peer_name_for_sid "$sid")"
+  printf '%s' "${name:-${sid:0:8}}"
 }
 
 # fzf --preview body for pane $1 (with leading %): what this agent is
@@ -130,6 +140,7 @@ preview_for() {
   fi
   state="$(tmux display -p -t "$pane_id" '#{@agent_state}' 2>/dev/null)"
 
+  echo "Peer:     $(peer_name_for_sid "${sid:-}" | grep . || echo -)"
   echo "Session:  ${sid:--}"
   echo "Pane:     ${target:--}  [${state:-unknown}]"
   if [ -n "${sid:-}" ]; then
@@ -190,11 +201,11 @@ fi
 # so empty fields are preserved. (Verified 2026-09-02 on the isolated
 # teststrip server: with a tab delimiter, an idle pane's empty state field
 # merged into pane_current_command and the title vanished entirely.)
-rows="$(tmux list-panes -a -F $'#{pane_id}\x1f#{session_name}\x1f#{window_index}\x1f#{pane_index}\x1f#{@agent_state}\x1f#{pane_current_command}\x1f#{pane_title}' 2>/dev/null)"
+rows="$(tmux list-panes -a -F $'#{pane_id}\x1f#{session_name}\x1f#{window_index}\x1f#{pane_index}\x1f#{@agent_state}\x1f#{pane_current_command}\x1f#{pane_current_path}\x1f#{pane_title}' 2>/dev/null)"
 
 # Collect matching panes first (to compute aligned column widths), then print.
-pane_ids=() win_targets=() disp_targets=() ages=() glyphs=() words=() ansis=() sids=() titles=()
-while IFS=$'\x1f' read -r pane_id sess win idx state cmd title; do
+pane_ids=() win_targets=() disp_targets=() ages=() glyphs=() words=() ansis=() sids=() cwds=() titles=()
+while IFS=$'\x1f' read -r pane_id sess win idx state cmd cwd title; do
   [ -n "$pane_id" ] || continue
   case "$cmd" in
     claude*) ;;
@@ -207,7 +218,12 @@ while IFS=$'\x1f' read -r pane_id sess win idx state cmd title; do
   glyphs+=("$(glyph_for "$state")")
   words+=("$(word_for "$state")")
   ansis+=("$(ansi_for "$state")")
-  sids+=("$(session_id_for "$pane_id")")
+  sids+=("$(peer_for "$pane_id")")
+  case "$cwd" in
+    "$HOME") cwd="~" ;;
+    "$HOME"/*) cwd="~${cwd#"$HOME"}" ;;
+  esac
+  cwds+=("$cwd")
   titles+=("${title#✳ }")
 done <<<"$rows"
 
@@ -221,6 +237,7 @@ target_w=0
 age_w=0
 status_w=0
 sid_w=0
+cwd_w=0
 i=0
 while [ "$i" -lt "$count" ]; do
   [ "${#disp_targets[$i]}" -gt "$target_w" ] && target_w="${#disp_targets[$i]}"
@@ -233,16 +250,17 @@ while [ "$i" -lt "$count" ]; do
   # exactly one column, is prepended unpadded.
   [ "${#words[$i]}" -gt "$status_w" ] && status_w="${#words[$i]}"
   [ "${#sids[$i]}" -gt "$sid_w" ] && sid_w="${#sids[$i]}"
+  [ "${#cwds[$i]}" -gt "$cwd_w" ] && cwd_w="${#cwds[$i]}"
   i=$((i + 1))
 done
 
 menu=""
 i=0
 while [ "$i" -lt "$count" ]; do
-  line="$(printf '%s\t%-*s  %-*s  %s%s %-*s%s  %-*s  %s' \
+  line="$(printf '%s\t%-*s  %-*s  %s%s %-*s%s  %-*s  %-*s  %s' \
     "${pane_ids[$i]}" "$target_w" "${disp_targets[$i]}" "$age_w" "${ages[$i]}" \
     "${ansis[$i]}" "${glyphs[$i]}" "$status_w" "${words[$i]}" "$ANSI_RESET" \
-    "$sid_w" "${sids[$i]}" "${titles[$i]}")"
+    "$sid_w" "${sids[$i]}" "$cwd_w" "${cwds[$i]}" "${titles[$i]}")"
   menu="${menu}${line}
 "
   i=$((i + 1))

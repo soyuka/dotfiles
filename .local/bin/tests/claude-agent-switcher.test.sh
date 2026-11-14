@@ -14,7 +14,8 @@
 # under $HOME (the scratchpad is mounted noexec).
 #
 # CLAUDE_TMUX_MAP_DIR points the switcher at a fixture map dir instead of
-# the real ~/.local/state/claude-tmux-panes.
+# the real ~/.local/state/claude-tmux-panes, CLAUDE_SESSIONS_DIR at a
+# fixture ~/.claude/sessions.
 set -u
 
 SCRIPT="$HOME/.local/bin/claude-agent-switcher"
@@ -24,10 +25,11 @@ REAL_TMUX="$(command -v tmux)"
 D="$(mktemp -d "$HOME/.cache/swtest-bin-XXXXXX")"
 MAPDIR="$(mktemp -d "$HOME/.cache/swtest-map-XXXXXX")"
 WORKDIR="$(mktemp -d "$HOME/.cache/swtest-work-XXXXXX")"
+SESSDIR="$(mktemp -d "$HOME/.cache/swtest-sess-XXXXXX")"
 
 cleanup() {
   "$REAL_TMUX" -L "$SOCK" kill-server >/dev/null 2>&1
-  rm -rf "$D" "$MAPDIR" "$WORKDIR"
+  rm -rf "$D" "$MAPDIR" "$WORKDIR" "$SESSDIR"
 }
 trap cleanup EXIT
 
@@ -86,7 +88,9 @@ chmod +x "$D/tmux"
 PANE_OTHER="$(REAL="$REAL_TMUX" "$REAL_TMUX" -L "$SOCK" list-panes -t main -F '#{pane_id}' | head -1)"
 
 # three claude panes.
-PANE_RUN="$("$REAL_TMUX" -L "$SOCK" split-window -t main -P -F '#{pane_id}' "$D/claude 300")"
+PROJDIR="$WORKDIR/some-project"
+mkdir -p "$PROJDIR"
+PANE_RUN="$("$REAL_TMUX" -L "$SOCK" split-window -t main -c "$PROJDIR" -P -F '#{pane_id}' "$D/claude 300")"
 PANE_UNKNOWN="$("$REAL_TMUX" -L "$SOCK" split-window -t main -P -F '#{pane_id}' "$D/claude 300")"
 PANE_NOMAP="$("$REAL_TMUX" -L "$SOCK" split-window -t main -P -F '#{pane_id}' "$D/claude 300")"
 
@@ -115,6 +119,11 @@ printf '%s\t%s\n' "$FULL_UUID" "$TRANSCRIPT" >"$MAPDIR/${PANE_RUN#%}"
 printf '%s\t%s\n' "11111111-2222-3333-4444-555555555555" "$TRANSCRIPT" >"$MAPDIR/${PANE_UNKNOWN#%}"
 # no map file at all for PANE_NOMAP.
 
+# registry entry only for PANE_RUN's session; PANE_UNKNOWN's session has
+# none, so its peer column falls back to the short session id.
+printf '{"pid":4242,"sessionId":"%s","name":"soyuka-3b"}\n' "$FULL_UUID" >"$SESSDIR/4242.json"
+printf '{"pid":4243,"sessionId":"ffffffff-0000-0000-0000-000000000000","name":"other-1a"}\n' >"$SESSDIR/4243.json"
+
 # transcript that doesn't exist, for the preview degrade test.
 MISSING_UUID="99999999-8888-7777-6666-555544443333"
 printf '%s\t%s\n' "$MISSING_UUID" "$WORKDIR/does-not-exist.jsonl" >"$MAPDIR/${PANE_NOMAP#%}.missingtranscript"
@@ -122,7 +131,7 @@ printf '%s\t%s\n' "$MISSING_UUID" "$WORKDIR/does-not-exist.jsonl" >"$MAPDIR/${PA
 run_switcher() {
   # $1 = capture file for fzf's stdin (the rendered menu).
   FZF_CAPTURE="$1" PATH="$D:$PATH" CLAUDE_TMUX_SOCKET="$SOCK" \
-    CLAUDE_TMUX_MAP_DIR="$MAPDIR" TMUX_CALL_LOG="$WORKDIR/tmux.log" \
+    CLAUDE_TMUX_MAP_DIR="$MAPDIR" CLAUDE_SESSIONS_DIR="$SESSDIR" TMUX_CALL_LOG="$WORKDIR/tmux.log" \
     "$SCRIPT"
 }
 
@@ -163,9 +172,12 @@ check "populated @agent_state (running) -> status column" "… working" "$(field
 check "empty @agent_state -> status column (regression: \\x1f delimiter)" "○ standing by" "$(field "$row_unknown" 3)"
 check "empty @agent_state pane still appears in menu" "yes" "$([ -n "$row_unknown" ] && echo yes || echo no)"
 
-check "session short id = first 8 chars of map field 1" "aaaaaaaa" "$(field "$row_run" 4)"
+check "peer id from the session registry" "soyuka-3b" "$(field "$row_run" 4)"
+check "no registry entry -> short session id" "11111111" "$(field "$row_unknown" 4)"
+check "cwd column shows pane_current_path with \$HOME as ~" "~${PROJDIR#"$HOME"}" "$(field "$row_run" 5)"
+check "title moves after the cwd column" "RUNTITLE" "$(field "$row_run" 6)"
 check "missing map entry -> '-' for age" "-" "$(field "$row_nomap" 2)"
-check "missing map entry -> '-' for short id" "-" "$(field "$row_nomap" 4)"
+check "missing map entry -> '-' for peer id" "-" "$(field "$row_nomap" 4)"
 
 check_not_contains "non-claude pane excluded from menu" "$PANE_OTHER" "$(cat "$MENU")"
 
@@ -189,12 +201,13 @@ check "no claude panes -> exit 0" "0" "$rc_empty"
 # =============================================================================
 echo "--- preview ---"
 
-preview_out="$(PATH="$D:$PATH" CLAUDE_TMUX_SOCKET="$SOCK" CLAUDE_TMUX_MAP_DIR="$MAPDIR" \
+preview_out="$(PATH="$D:$PATH" CLAUDE_TMUX_SOCKET="$SOCK" CLAUDE_TMUX_MAP_DIR="$MAPDIR" CLAUDE_SESSIONS_DIR="$SESSDIR" \
   "$SCRIPT" --preview-pane "$PANE_RUN" 2>&1)"
 preview_rc=$?
 
 check "preview exits 0" "0" "$preview_rc"
 check_contains "preview shows full session UUID" "$FULL_UUID" "$preview_out"
+check_contains "preview shows peer id" "Peer:     soyuka-3b" "$preview_out"
 check_contains "preview shows resume command" "claude --resume $FULL_UUID" "$preview_out"
 check_contains "preview parses last assistant text from transcript tail" "Final answer here" "$preview_out"
 check_contains "preview parses last tool used from transcript tail" "Bash" "$preview_out"

@@ -28,10 +28,12 @@
 !.local/bin
 .local/bin/*
 !.local/bin/dnm
-# tmux agent strip (status line 1) + its fzf switcher; ~/.tmux.conf calls all three
+# scripts ~/.tmux.conf calls: agent state glyphs, fzf switcher, usage, copy join, resurrect rewrite
 !.local/bin/claude-tmux-state
 !.local/bin/claude-agent-switcher
-!.local/bin/tmux-agent-budget
+!.local/bin/tmux-claude-usage
+!.local/bin/tmux-copy-join
+!.local/bin/tmux-resurrect-claude-rewrite
 !.local/bin/tests
 !.tmux.conf
 !.vimrc

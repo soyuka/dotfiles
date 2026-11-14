@@ -1,0 +1,24 @@
+#!/bin/bash
+# status-right fragment: Claude 5h / weekly usage from the statusline.sh cache.
+# Empty output when the cache is missing, unparseable or older than 600s.
+f="${CLAUDE_USAGE_CACHE:-/tmp/claude/statusline-usage-cache.json}"
+[ -f "$f" ] || exit 0
+mtime=$(stat -c %Y "$f" 2>/dev/null) || exit 0
+[ $(( $(date +%s) - mtime )) -le 600 ] || exit 0
+
+read -r p5 p7 reset < <(jq -r '[(.five_hour.utilization // 0 | round), (.seven_day.utilization // 0 | round), (.five_hour.resets_at // "-")] | @tsv' "$f" 2>/dev/null) || exit 0
+[ -n "${p5:-}" ] && [ -n "${p7:-}" ] || exit 0
+
+color() {
+  if [ "$1" -ge 90 ]; then echo red
+  elif [ "$1" -ge 70 ]; then echo colour208
+  elif [ "$1" -ge 50 ]; then echo yellow
+  else echo green
+  fi
+}
+
+out="#[fg=$(color "$p5")]5h ${p5}%"
+if [ "$p5" -ge 70 ] && [ "$reset" != "-" ]; then
+  hhmm=$(date -d "$reset" +%H:%M 2>/dev/null) && out+=" ↻${hhmm}"
+fi
+printf '%s #[fg=%s]wk %s%% ' "$out" "$(color "$p7")" "$p7"

@@ -1,7 +1,7 @@
 #!/bin/sh
 # Claude Code hook: mirror hook_event_name into a per-pane tmux user option
-# (@agent_state) so the status-bar agent strip (~/.tmux.conf, added
-# 2026-09-02) can render live per-pane state without a subprocess in the tmux
+# (@agent_state) so the window-list glyphs and status-right alarm (~/.tmux.conf)
+# can render live per-pane state without a subprocess in the tmux
 # format itself (#() is async-cached and renders blank on first eval, so the
 # format reads @agent_state directly instead of shelling out).
 #
@@ -41,10 +41,6 @@ case "$event" in
   SessionEnd)
     tmux set-option -p -t "$TMUX_PANE" -u @agent_state >/dev/null 2>&1
     tmux set-option -p -t "$TMUX_PANE" -u @agent_since >/dev/null 2>&1
-    # Agent count changed -> the strip's per-entry title budget must be
-    # recomputed. Only SessionStart/SessionEnd change the count, so the
-    # other (far more frequent) events below deliberately skip this.
-    "$(dirname "$0")/tmux-agent-budget" >/dev/null 2>&1 || true
     exit 0
     ;;
   *) exit 0 ;;
@@ -53,7 +49,4 @@ esac
 tmux set-option -p -t "$TMUX_PANE" @agent_state "$state" >/dev/null 2>&1
 tmux set-option -p -t "$TMUX_PANE" @agent_since "$(date +%s)" >/dev/null 2>&1
 
-if [ "$event" = SessionStart ]; then
-  "$(dirname "$0")/tmux-agent-budget" >/dev/null 2>&1 || true
-fi
 exit 0

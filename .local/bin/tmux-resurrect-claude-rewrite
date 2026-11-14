@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# tmux-resurrect post-save-all hook: rewrite saved claude panes to
+# `claude --resume <session-id>` using the pane->session map written by
+# ~/.claude/hooks/tmux-pane-session.sh (SessionStart hook).
+set -euo pipefail
+
+resurrect_dir="$(tmux show -gqv @resurrect-dir || true)"
+resurrect_dir="${resurrect_dir:-$HOME/.tmux/resurrect}"
+resurrect_dir="${resurrect_dir/#\~/$HOME}"
+last="$resurrect_dir/last"
+[ -f "$last" ] || exit 0
+file="$(readlink -f "$last")"
+
+state_dir="$HOME/.local/state/claude-tmux-panes"
+
+panes="$(tmux list-panes -a -F '#{session_name}	#{window_index}	#{pane_index}	#{pane_id}')"
+
+# prune state files of panes that no longer exist
+if [ -d "$state_dir" ]; then
+	for f in "$state_dir"/*; do
+		[ -e "$f" ] || continue
+		grep -q "	%${f##*/}$" <<< "$panes" || rm -f "$f"
+	done
+fi
+
+tmp="$(mktemp)"
+awk -v state_dir="$state_dir" -v panes="$panes" '
+BEGIN {
+	FS = OFS = "\t"
+	n = split(panes, lines, "\n")
+	for (i = 1; i <= n; i++) {
+		split(lines[i], p, "\t")
+		sub(/^%/, "", p[4])
+		pane_id[p[1] FS p[2] FS p[3]] = p[4]
+	}
+}
+$1 == "pane" && $NF ~ /^:claude( |$)/ {
+	cmd = ""
+	id = pane_id[$2 FS $3 FS $6]
+	if (id != "") {
+		f = state_dir "/" id
+		if ((getline line < f) > 0) {
+			close(f)
+			split(line, a, "\t")
+			if (a[1] != "" && (a[2] == "" || system("[ -f \"" a[2] "\" ]") == 0))
+				cmd = ":claude --resume " a[1]
+		}
+	}
+	# no mapping: keep a hand-launched --resume, otherwise best-effort --continue
+	if (cmd == "")
+		cmd = ($NF ~ /--resume/) ? $NF : ":claude --continue"
+	$NF = cmd
+}
+{ print }
+' "$file" > "$tmp"
+mv "$tmp" "$file"
