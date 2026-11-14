@@ -17,6 +17,12 @@
 !.config/zathura/zathurarc
 .config/zsh/antigen.zsh
 .config/zsh/soyuka.zsh-theme.antigen-compat
+# Claude Code mods only: ~/.claude holds credentials and session data
+!.claude
+.claude/*
+!.claude/mods
+.claude/mods/*/.claude-plugin/types
+.claude/mods/*/tsconfig.json
 !.gitconfig
 !.github
 # .local needs the same three-step form as .config above: /* excludes

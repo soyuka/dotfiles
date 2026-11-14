@@ -1,0 +1,1 @@
+{ "name": "session-notepad", "version": "0.1.0", "description": "Per-session pane keeping a running bullet list of small things left to test or check", "types": "./types/index.d.ts" }
