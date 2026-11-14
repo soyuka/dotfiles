@@ -1,6 +1,28 @@
 font=pango:Source Code Pro 10
-background-color=#282C34
+background-color=#282C34F2
 text-color=#ABB2BF
-border-size=0
+border-size=2
+border-color=#3E4451
+border-radius=8
+progress-color=over #61AFEF55
+width=360
+padding=12,14
+margin=10
+outer-margin=6
+icons=1
+max-icon-size=40
+max-visible=5
 default-timeout=1800
-border-radius=7
+anchor=bottom-left
+layer=overlay
+format=<span size="small" foreground="#5C6370">%a</span>\n<b>%s</b>\n%b
+
+[urgency=low]
+border-color=#3E4451
+text-color=#7F848E
+
+[urgency=high]
+border-color=#E06C75
+
+[mode=do-not-disturb]
+invisible=1
