@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { Register } from 'claude-code'
+import type { EngineInterface, Register } from 'claude-code'
 
 import type { Notepad } from '../types'
 
@@ -11,8 +11,36 @@ const TOOL_FULL = `mcp__${PLUGIN}__${TOOL}`
 const notepad = atom(
   { plugin: 'session-notepad', key: 'notepad' } as const,
   { nextId: 1, items: [] },
-  { shape: 'notepad-1' },
+  { shape: 'notepad-2' },
 )
+
+const KEEP_SESSIONS = 100
+const storeKey = (sessionId: string) => `pad:${sessionId}`
+
+const sync = async ($: EngineInterface): Promise<Notepad> => {
+  const sessionId = await $.session.id()
+  const current = await read($, notepad)
+  if (current.sessionId === sessionId) {
+    return current
+  }
+  const saved = (await $.store.get(storeKey(sessionId))) as Notepad | undefined
+
+  return update($, notepad, () => ({ nextId: 1, items: [], ...saved, sessionId }))
+}
+
+const change = async ($: EngineInterface, ops: Ops): Promise<Notepad> => {
+  await sync($)
+  const pad = await update($, notepad, p => apply(p, ops))
+  if (pad.sessionId !== undefined) {
+    await $.store.set(storeKey(pad.sessionId), { nextId: pad.nextId, items: pad.items })
+    const keys = await $.store.keys()
+    for (const key of keys.slice(0, Math.max(0, keys.length - KEEP_SESSIONS))) {
+      await $.store.delete(key)
+    }
+  }
+
+  return pad
+}
 
 type Ops = {
   add?: string[]
@@ -43,7 +71,7 @@ const apply = (pad: Notepad, ops: Ops): Notepad => {
       isDone: done.has(i.id) ? true : undo.has(i.id) ? false : i.isDone,
     }))
 
-  return { nextId, items }
+  return { ...pad, nextId, items }
 }
 
 const format = (pad: Notepad): string =>
@@ -95,13 +123,20 @@ export const register: Register = on => {
         },
       },
     })
+    await sync($)
     void $.ui.open({ id: PANE, title: 'Notepad' })
 
     return next(e)
   })
 
+  on('turn.start', async ($, e, next) => {
+    await sync($)
+
+    return next(e)
+  })
+
   on('tool.call', { tool: TOOL_FULL }, async ($, e) => {
-    const pad = await update($, notepad, p => apply(p, e as unknown as Ops))
+    const pad = await change($, e as unknown as Ops)
 
     return { result: format(pad) }
   })
@@ -119,12 +154,12 @@ export const register: Register = on => {
 
     if (ops === null) {
       await $.ui.open({ id: PANE, title: 'Notepad' })
-      const pad = await read($, notepad)
+      const pad = await sync($)
 
       return { text: verb === '' || verb === 'show' ? format(pad) : USAGE }
     }
 
-    const pad = await update($, notepad, p => apply(p, ops))
+    const pad = await change($, ops)
 
     return { text: format(pad) }
   })
