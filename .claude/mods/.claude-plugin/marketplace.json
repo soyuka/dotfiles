@@ -1,0 +1,8 @@
+{
+  "name": "soyuka-mods",
+  "owner": { "name": "soyuka" },
+  "plugins": [
+    { "name": "session-notepad", "source": "./session-notepad", "description": "Per-session pane keeping a running bullet list of small things left to test or check" },
+    { "name": "footer-oneline", "source": "./footer-oneline", "description": "Removes the vim mode indicator from the prompt hint row, the status line shows it instead" }
+  ]
+}

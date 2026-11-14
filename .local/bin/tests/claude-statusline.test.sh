@@ -30,5 +30,15 @@ for w in "current:" "weekly:" "resets"; do
 done
 case "$PLAIN" in *"| ") bad "trailing separator" ;; *) ok ;; esac
 
+run() { CLAUDE_SESSIONS_DIR="$DIR/sessions" CLAUDE_USAGE_CACHE="$DIR/cache.json" bash "$SCRIPT" <<<"$1" | sed 's/\x1b\[[0-9;]*m//g'; }
+
+VIM_INPUT='{"model":{"display_name":"Opus 4.7"},"vim":{"mode":"INSERT"},"session_id":"abc","context_window":{"context_window_size":1000000,"current_usage":{"input_tokens":1000}}}'
+WITH="$(run "$VIM_INPUT")"
+case "$WITH" in "INSERT | Opus 4.7"*) ok ;; *) bad "vim segment first (got: $WITH)" ;; esac
+case "$WITH" in *"1k/1.0m 0%") ok ;; *) bad "tokens segment last (got: $WITH)" ;; esac
+
+WITHOUT="$(run "$INPUT")"
+case "$WITHOUT" in "Opus 4.7"*) ok ;; *) bad "no vim segment when absent (got: $WITHOUT)" ;; esac
+
 echo "pass=$PASS fail=$FAIL"
 [ "$FAIL" -eq 0 ]

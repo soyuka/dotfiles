@@ -1,7 +1,0 @@
-{
-  "name": "soyuka-mods",
-  "owner": { "name": "soyuka" },
-  "plugins": [
-    { "name": "session-notepad", "source": "./", "description": "Per-session pane keeping a running bullet list of small things left to test or check" }
-  ]
-}

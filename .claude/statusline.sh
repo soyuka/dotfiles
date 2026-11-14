@@ -1,7 +1,7 @@
 #!/bin/bash
-# One line: <model> | <peer name> | effort:<level> | <used>/<total> <pct>%
-# Peer name and effort are omitted when absent; the token part is colored by
-# context usage (green <50, orange 50-69, yellow 70-89, red >=90).
+# One line: <vim mode> | <model> | <peer name> | effort:<level> | <used>/<total> <pct>%
+# Vim mode, peer name and effort are omitted when absent; the token part is
+# colored by context usage (green <50, orange 50-69, yellow 70-89, red >=90).
 # Also refreshes the OAuth usage cache (60s TTL) that tmux-claude-usage reads
 # for the tmux status bar; the cache path is overridable via CLAUDE_USAGE_CACHE.
 
@@ -41,6 +41,7 @@ format_tokens() {
 model_name=$(echo "$input" | jq -r '.model.display_name // "Claude"')
 effort_level=$(echo "$input" | jq -r '.effort.level // empty')
 session_id=$(echo "$input" | jq -r '.session_id // empty')
+vim_mode=$(echo "$input" | jq -r '.vim.mode // empty')
 peer_name=""
 if [ -n "$session_id" ]; then
     # find, not a glob: set -f above disables globbing.
@@ -167,7 +168,16 @@ elif [ "$pct_used" -ge 50 ]; then tokens_color="$orange"
 else tokens_color="$green"
 fi
 
-line="${blue}${model_name}${reset}"
+line=""
+if [ -n "$vim_mode" ]; then
+    case "$vim_mode" in
+        NORMAL) vim_color="$yellow" ;;
+        INSERT) vim_color="$green" ;;
+        *)      vim_color="$white" ;;
+    esac
+    line+="${vim_color}${vim_mode}${reset} ${dim}|${reset} "
+fi
+line+="${blue}${model_name}${reset}"
 [ -n "$peer_name" ] && line+=" ${dim}|${reset} ${cyan}${peer_name}${reset}"
 [ -n "$effort_str" ] && line+=" ${dim}|${reset} ${effort_str}"
 line+=" ${dim}|${reset} ${tokens_color}${used_tokens}/${total_tokens} ${pct_used}%${reset}"

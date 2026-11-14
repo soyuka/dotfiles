@@ -1,0 +1,1 @@
+{ "name": "footer-oneline", "version": "0.1.0", "description": "Removes the vim mode indicator from the prompt hint row, the status line shows it instead" }
