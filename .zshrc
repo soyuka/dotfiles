@@ -19,6 +19,9 @@ antigen bundle zsh-users/zsh-completions
 antigen theme $ZSH_CONFIG soyuka
 antigen apply
 
+# after antigen: oh-my-zsh lib/directories.zsh defines md='mkdir -p'
+alias md=mdv
+
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 zstyle :compinstall filename '/home/soyuka/.zshrc'
 plugins=(zsh-completions colored-man-pages)
