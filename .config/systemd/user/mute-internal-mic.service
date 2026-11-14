@@ -1,0 +1,11 @@
+[Unit]
+Description=Mute built-in digital microphone at login
+After=wireplumber.service
+Wants=wireplumber.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'for i in $(seq 50); do pactl set-source-mute alsa_input.pci-0000_73_00.6.HiFi__Mic1__source 1 2>/dev/null && exit 0; sleep 0.2; done; exit 1'
+
+[Install]
+WantedBy=default.target
