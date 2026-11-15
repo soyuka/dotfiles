@@ -11,7 +11,7 @@ const TOOL_FULL = `mcp__${PLUGIN}__${TOOL}`
 const notepad = atom(
   { plugin: 'session-notepad', key: 'notepad' } as const,
   { nextId: 1, items: [] },
-  { shape: 'notepad-2' },
+  { shape: 'notepad-3' },
 )
 
 const KEEP_SESSIONS = 100
@@ -23,9 +23,12 @@ const sync = async ($: EngineInterface): Promise<Notepad> => {
   if (current.sessionId === sessionId) {
     return current
   }
-  const saved = (await $.store.get(storeKey(sessionId))) as Notepad | undefined
+  const saved = (await $.store.get(storeKey(sessionId))) as Saved | undefined
+  const items = (saved?.items ?? [])
+    .filter(i => !i.isDone)
+    .map(({ id, text }) => ({ id, text }))
 
-  return update($, notepad, () => ({ nextId: 1, items: [], ...saved, sessionId }))
+  return update($, notepad, () => ({ nextId: saved?.nextId ?? 1, items, sessionId }))
 }
 
 const change = async ($: EngineInterface, ops: Ops): Promise<Notepad> => {
@@ -42,34 +45,28 @@ const change = async ($: EngineInterface, ops: Ops): Promise<Notepad> => {
   return pad
 }
 
+type Saved = { nextId: number; items: { id: number; text: string; isDone?: boolean }[] }
+
 type Ops = {
   add?: string[]
   done?: number[]
-  undo?: number[]
   remove?: number[]
   edit?: { id: number; text: string }[]
-  clearDone?: boolean
 }
 
 const apply = (pad: Notepad, ops: Ops): Notepad => {
   let { nextId, items } = pad
   for (const text of ops.add ?? []) {
     const clean = text.trim()
-    if (clean !== '' && !items.some(i => !i.isDone && i.text === clean)) {
-      items = [...items, { id: nextId++, text: clean, isDone: false }]
+    if (clean !== '' && !items.some(i => i.text === clean)) {
+      items = [...items, { id: nextId++, text: clean }]
     }
   }
-  const done = new Set(ops.done ?? [])
-  const undo = new Set(ops.undo ?? [])
-  const remove = new Set(ops.remove ?? [])
+  const gone = new Set([...(ops.done ?? []), ...(ops.remove ?? [])])
   const edits = new Map((ops.edit ?? []).map(e => [e.id, e.text.trim()]))
   items = items
-    .filter(i => !remove.has(i.id) && !(ops.clearDone && i.isDone))
-    .map(i => ({
-      ...i,
-      text: edits.get(i.id) || i.text,
-      isDone: done.has(i.id) ? true : undo.has(i.id) ? false : i.isDone,
-    }))
+    .filter(i => !gone.has(i.id))
+    .map(i => ({ ...i, text: edits.get(i.id) || i.text }))
 
   return { ...pad, nextId, items }
 }
@@ -77,16 +74,16 @@ const apply = (pad: Notepad, ops: Ops): Notepad => {
 const format = (pad: Notepad): string =>
   pad.items.length === 0
     ? 'Notepad is empty.'
-    : pad.items.map(i => `${i.isDone ? '[x]' : '[ ]'} #${i.id} ${i.text}`).join('\n')
+    : pad.items.map(i => `#${i.id} ${i.text}`).join('\n')
 
 const INSTRUCTIONS = `A pane beside the chat shows a per-session notepad: a short bullet list of small pending items the person must not lose as output scrolls (things to test, check, verify, try, follow up on). Keep it current with this tool, without being asked:
 - add an item whenever you or the person mention something still to test, check or do later, one short line each, in the person's language
-- mark items done as soon as they are verified or no longer relevant, edit them when they change
+- mark items done as soon as they are verified or no longer relevant (done items are removed), edit them when they change
 - do not add the task currently being worked on, nor anything already listed
 The tool answers with the full list; read it rather than guessing ids.`
 
 const USAGE =
-  'usage: /notepad [add <text> | done <id…> | undo <id…> | rm <id…> | clear | show]'
+  'usage: /notepad [add <text> | done <id…> | rm <id…> | show]'
 
 const ids = (rest: string): number[] =>
   rest
@@ -98,7 +95,7 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'notepad',
-      description: 'Session notepad: open the pane, or add/done/undo/rm/clear items',
+      description: 'Session notepad: open the pane, or add/done/rm items',
     })
     await $.tool.register({
       name: TOOL,
@@ -108,8 +105,7 @@ export const register: Register = on => {
         type: 'object',
         properties: {
           add: { type: 'array', items: { type: 'string' }, description: 'New items, one short line each' },
-          done: { type: 'array', items: { type: 'integer' }, description: 'Ids to mark done' },
-          undo: { type: 'array', items: { type: 'integer' }, description: 'Ids to mark not done' },
+          done: { type: 'array', items: { type: 'integer' }, description: 'Ids done or no longer relevant, removed from the list' },
           remove: { type: 'array', items: { type: 'integer' }, description: 'Ids to delete' },
           edit: {
             type: 'array',
@@ -119,7 +115,6 @@ export const register: Register = on => {
               required: ['id', 'text'],
             },
           },
-          clearDone: { type: 'boolean', description: 'Delete every done item' },
         },
       },
     })
@@ -147,9 +142,7 @@ export const register: Register = on => {
     const ops: Ops | null =
       verb === 'add' && rest !== '' ? { add: [rest] }
       : verb === 'done' ? { done: ids(rest) }
-      : verb === 'undo' ? { undo: ids(rest) }
       : verb === 'rm' ? { remove: ids(rest) }
-      : verb === 'clear' ? { clearDone: true }
       : null
 
     if (ops === null) {
@@ -167,17 +160,15 @@ export const register: Register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
     const { items } = await read($, notepad)
-    const open = items.filter(i => !i.isDone)
-    const closed = items.filter(i => i.isDone)
     const room = Math.max(1, (e.viewport?.rows ?? 24) - 3)
-    const shown = [...open, ...closed.slice(-Math.max(0, room - open.length))].slice(0, room)
+    const shown = items.slice(0, room)
 
     return (
       <Box flexDirection="column">
         {items.length === 0 && <Text dimColor>Nothing pending yet.</Text>}
         {shown.map(i => (
-          <Text dimColor={i.isDone} strikethrough={i.isDone}>
-            {i.isDone ? '✓' : '•'} {i.text} <Text dimColor>#{i.id}</Text>
+          <Text>
+            • {i.text} <Text dimColor>#{i.id}</Text>
           </Text>
         ))}
         {items.length > shown.length && (
